@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Spartizione Copertura v3 — CT Carpenteria Ticinese</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
+:root {
+  --bg:#0f0f0e; --surface:#1a1a18; --surface2:#232320; --border:#2e2e2a;
+  --amber:#d4a017; --amber-dim:#8a6a10; --amber-glow:rgba(212,160,23,0.12);
+  --text:#e8e4dc; --text-dim:#8a8680; --red:#c0392b; --green:#27ae60; --blue:#2980b9;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 18px;
+  display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
+header .logo{font-size:10px;color:var(--amber);font-family:'DM Mono',monospace;
+  letter-spacing:.1em;font-weight:500;text-transform:uppercase;}
+header h1{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.02em;}
+header .badge{margin-left:auto;background:var(--amber-glow);border:1px solid var(--amber-dim);
+  color:var(--amber);font-size:10px;padding:3px 8px;border-radius:20px;
+  font-family:'DM Mono',monospace;font-weight:500;letter-spacing:.08em;}
+
+.container{max-width:920px;margin:0 auto;padding:18px 14px 120px;}
+
+.section{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  margin-bottom:14px;overflow:hidden;}
+.section-header{padding:11px 15px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;}
+.section-num{width:21px;height:21px;background:var(--amber);color:#000;border-radius:50%;
+  font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.section-title{font-size:12px;font-weight:700;color:var(--text);letter-spacing:.04em;text-transform:uppercase;}
+.section-body{padding:14px;}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:11px;}
+@media(max-width:600px){.grid3,.grid4{grid-template-columns:1fr 1fr;}.grid2{grid-template-columns:1fr 1fr;}}
+@media(max-width:380px){.grid2,.grid3,.grid4{grid-template-columns:1fr;}}
+
+.field{display:flex;flex-direction:column;gap:4px;}
+label{font-size:10px;font-weight:600;color:var(--text-dim);letter-spacing:.08em;
+  text-transform:uppercase;font-family:'DM Mono',monospace;}
+input,select{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  padding:9px 11px;border-radius:6px;font-size:14px;font-family:'DM Mono',monospace;
+  font-weight:500;width:100%;outline:none;transition:border-color .15s;-webkit-appearance:none;}
+input:focus,select:focus{border-color:var(--amber);background:#1e1e1b;}
+select option{background:var(--surface2);color:var(--text);}
+.unit{font-size:10px;color:var(--amber-dim);font-family:'DM Mono',monospace;margin-top:1px;}
+
+/* PENDENZA DOPPIA */
+.pendenza-group{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:end;}
+.pendenza-sep{color:var(--amber);font-size:18px;text-align:center;padding-bottom:10px;font-weight:700;}
+
+/* TIPO COPERTURA */
+.type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:7px;}
+.type-btn{border:1px solid var(--border);background:var(--surface2);border-radius:8px;
+  padding:9px 6px;cursor:pointer;text-align:center;transition:all .15s;}
+.type-btn input[type=radio]{display:none;}
+.type-btn .icon{font-size:20px;display:block;margin-bottom:3px;}
+.type-btn .name{font-size:10px;font-weight:700;color:var(--text);line-height:1.2;}
+.type-btn .sub{font-size:9px;color:var(--text-dim);margin-top:1px;font-family:'DM Mono',monospace;}
+.type-btn.active{border-color:var(--amber);background:var(--amber-glow);}
+.type-btn.active .name{color:var(--amber);}
+
+.brand-info{background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+  padding:9px 12px;margin-top:9px;font-size:11px;font-family:'DM Mono',monospace;
+  color:var(--text-dim);line-height:1.7;display:none;}
+.brand-info.visible{display:block;}
+.brand-info strong{color:var(--amber);}
+
+/* COLMO A MURO + SPORGENZA */
+.colmo-row{display:flex;align-items:center;gap:10px;margin-top:10px;}
+.toggle-lbl{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--amber);cursor:pointer;}
+
+/* MANUALE SALVA */
+.btn-save-manual{background:var(--surface2);border:1px solid var(--amber-dim);color:var(--amber);
+  padding:8px 14px;border-radius:6px;font-size:11px;font-family:'DM Mono',monospace;
+  cursor:pointer;font-weight:700;letter-spacing:.05em;transition:all .15s;margin-top:10px;}
+.btn-save-manual:hover{background:var(--amber-glow);}
+.saved-profiles{margin-top:8px;}
+.saved-profile-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);
+  padding:5px 10px;border-radius:4px;font-size:10px;font-family:'DM Mono',monospace;
+  cursor:pointer;margin-right:6px;margin-bottom:4px;display:inline-block;}
+.saved-profile-btn:hover{border-color:var(--amber);color:var(--amber);}
+
+.btn-calc{width:100%;background:var(--amber);color:#000;border:none;padding:15px;
+  border-radius:8px;font-size:14px;font-weight:800;font-family:'Syne',sans-serif;
+  letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:all .15s;margin-top:8px;}
+.btn-calc:hover{background:#e8b020;transform:translateY(-1px);}
+
+#results{display:none;}
+.result-hero{background:linear-gradient(135deg,var(--surface) 0%,#1a1a10 100%);
+  border:1px solid var(--amber-dim);border-radius:10px;padding:18px;margin-bottom:14px;
+  position:relative;overflow:hidden;}
+.result-hero::before{content:'';position:absolute;top:-40px;right:-40px;
+  width:130px;height:130px;background:radial-gradient(circle,var(--amber-glow) 0%,transparent 70%);}
+.result-hero-title{font-size:10px;color:var(--amber);font-family:'DM Mono',monospace;
+  letter-spacing:.12em;text-transform:uppercase;margin-bottom:9px;}
+.result-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+.kpi{background:rgba(0,0,0,.3);border-radius:8px;padding:11px;border:1px solid var(--border);}
+.kpi-val{font-size:23px;font-weight:800;color:var(--amber);line-height:1;font-family:'DM Mono',monospace;}
+.kpi-label{font-size:9px;color:var(--text-dim);margin-top:3px;font-family:'DM Mono',monospace;
+  letter-spacing:.06em;text-transform:uppercase;}
+
+.detail-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  margin-bottom:11px;overflow:hidden;}
+.detail-card-title{padding:9px 15px;font-size:11px;font-weight:700;color:var(--amber);
+  text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);
+  font-family:'DM Mono',monospace;background:rgba(212,160,23,.06);}
+.detail-card-body{padding:13px 15px;}
+
+.row-data{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;gap:10px;}
+.row-data:last-child{border-bottom:none;}
+.row-data .lbl{color:var(--text-dim);font-family:'DM Mono',monospace;font-size:10px;flex-shrink:0;}
+.row-data .val{font-weight:700;color:var(--text);font-family:'DM Mono',monospace;text-align:right;}
+.row-data .val.amber{color:var(--amber);}
+.row-data .val.green{color:var(--green);}
+.row-data .val.red{color:var(--red);}
+
+.schema-box{background:var(--surface2);border:1px solid var(--border);border-radius:7px;
+  padding:13px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);
+  line-height:1.9;white-space:pre;overflow-x:auto;}
+.schema-box .hi{color:var(--amber);}
+.schema-box .hi2{color:var(--green);}
+.schema-box .hi3{color:var(--blue);}
+
+.paraneve-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.pn-card{background:var(--surface2);border:1px solid var(--border);border-radius:7px;
+  padding:11px;text-align:center;}
+.pn-num{font-size:26px;font-weight:800;color:var(--blue);font-family:'DM Mono',monospace;}
+.pn-lbl{font-size:9px;color:var(--text-dim);font-family:'DM Mono',monospace;
+  text-transform:uppercase;margin-top:2px;}
+
+.alert{border-radius:7px;padding:9px 13px;font-size:11px;font-family:'DM Mono',monospace;
+  line-height:1.6;margin-top:9px;}
+.alert-warn{background:rgba(212,160,23,.1);border:1px solid var(--amber-dim);color:var(--amber);}
+.alert-ok{background:rgba(39,174,96,.1);border:1px solid #27ae6080;color:var(--green);}
+.alert-err{background:rgba(192,57,43,.1);border:1px solid #c0392b80;color:var(--red);}
+.alert-info{background:rgba(41,128,185,.1);border:1px solid #2980b980;color:var(--blue);}
+
+.btn-row{display:flex;gap:9px;margin-top:8px;}
+.btn-sec{flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);
+  padding:11px;border-radius:7px;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;
+  cursor:pointer;transition:all .15s;text-align:center;}
+.btn-sec:hover{border-color:var(--amber);color:var(--amber);}
+
+.nota{background:var(--surface2);border-left:3px solid var(--amber);padding:9px 13px;
+  border-radius:0 6px 6px 0;font-size:10px;font-family:'DM Mono',monospace;
+  color:var(--text-dim);line-height:1.7;margin-top:7px;}
+.nota strong{color:var(--text);}
+
+@media print{
+  header .badge,.btn-row,.btn-calc,.btn-save-manual,.saved-profiles{display:none;}
+  body{background:#fff;color:#000;}
+  .section,.result-hero,.detail-card,.kpi{border-color:#ccc;background:#fff;}
+  .kpi-val,.amber{color:#996600!important;}
+}
+
+/* v3 — ALERT PENDENZA INSUFFICIENTE */
+input.field-error{border-color:var(--red)!important;background:rgba(192,57,43,.09)!important;
+  box-shadow:0 0 0 3px rgba(192,57,43,.18);}
+input.field-error:focus{border-color:var(--red)!important;}
+
+/* v3 — NOTA CONVERSIONE MISURA */
+.conv-note{font-size:10px;font-family:'DM Mono',monospace;margin-top:3px;
+  color:#3da85a;display:none;line-height:1.4;}
+.conv-note.warn{color:var(--amber-dim);}
+
+/* v3 — RADIO MODO MISURA */
+.misura-toggle{display:flex;align-items:center;gap:14px;padding:9px 13px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+  margin-top:10px;flex-wrap:wrap;}
+.misura-toggle .mt-lbl{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;
+  font-weight:600;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;}
+.misura-toggle label{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;
+  color:var(--text);font-family:'DM Mono',monospace;font-weight:400;
+  text-transform:none;letter-spacing:0;}
+.misura-toggle input[type=radio]{width:14px;height:14px;accent-color:var(--amber);cursor:pointer;}
+.misura-toggle label.active-radio{color:var(--amber);}
+
+/* === SEZIONE A — ISOLAZIONE === */
+.iso-config-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.iso-strati{display:flex;flex-direction:column;gap:9px;}
+.iso-strato{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 12px 12px 14px;position:relative;}
+.iso-strato-title{font-size:10px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+.iso-strato-del{position:absolute;top:8px;right:8px;background:transparent;border:1px solid var(--red);color:var(--red);font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;padding:2px 7px;border-radius:4px;line-height:1.4;}
+.iso-stack{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:11px 14px;margin-top:11px;}
+.iso-stack-item{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11px;font-family:'DM Mono',monospace;}
+.iso-stack-item .layer-icon{width:26px;text-align:center;font-size:12px;color:var(--text-dim);}
+.iso-stack-item .layer-name{color:var(--text-dim);}
+.iso-stack-item.highlight .layer-name{color:var(--amber);font-weight:700;}
+.iso-uval{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:13px;margin-top:11px;display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+.iso-uval .uval-num{font-size:32px;font-weight:800;font-family:'DM Mono',monospace;line-height:1;}
+.iso-uval .uval-num.ok{color:var(--green);}
+.iso-uval .uval-num.warn{color:var(--red);}
+.iso-uval .uval-label{font-size:9px;font-family:'DM Mono',monospace;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;}
+.iso-uval .uval-detail{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);line-height:1.75;flex:1;min-width:200px;}
+.btn-add-strato{background:var(--surface2);border:1px dashed var(--amber-dim);color:var(--amber);padding:8px 14px;border-radius:6px;font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;font-weight:700;letter-spacing:.05em;transition:all .15s;margin-top:8px;}
+.btn-add-strato:hover{background:var(--amber-glow);}
+.iso-opt-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:7px;}
+.iso-opt-row label{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text);font-family:'DM Mono',monospace;cursor:pointer;}
+.iso-opt-row input[type=radio]{width:13px;height:13px;accent-color:var(--amber);}
+.iso-spes-info{font-size:10px;color:var(--green);font-family:'DM Mono',monospace;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;line-height:1.6;}
+
+/* === SEZIONE B — DISTINTA === */
+#sezB{display:none;}
+.distinta-table{width:100%;border-collapse:collapse;font-size:11px;font-family:'DM Mono',monospace;margin-top:8px;}
+.distinta-table th{background:rgba(212,160,23,.12);color:var(--amber);font-weight:700;text-align:left;padding:7px 10px;border-bottom:1px solid var(--amber-dim);font-size:10px;letter-spacing:.06em;text-transform:uppercase;}
+.distinta-table td{padding:6px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.distinta-table tr:nth-child(even) td{background:rgba(255,255,255,.025);}
+.distinta-table tr:hover td{background:rgba(212,160,23,.04);}
+.distinta-table td.qty{font-weight:700;color:var(--text);text-align:right;white-space:nowrap;}
+.distinta-table td.unit{color:var(--text-dim);text-align:center;white-space:nowrap;}
+.distinta-table td.note-col{color:var(--text-dim);font-style:italic;font-size:10px;}
+.scorta-box{background:rgba(212,160,23,.08);border:1px solid var(--amber-dim);border-radius:7px;padding:12px;margin-top:12px;}
+.scorta-box .scorta-title{font-size:11px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px;}
+.btn-print-distinta{background:var(--amber);color:#000;border:none;padding:11px 20px;border-radius:7px;font-size:12px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;letter-spacing:.04em;transition:all .15s;}
+.btn-print-distinta:hover{background:#e8b020;}
+.btn-csv{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:11px 18px;border-radius:7px;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .15s;}
+.btn-csv:hover{border-color:var(--amber);color:var(--amber);}
+.distinta-sub-title{font-size:11px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin:14px 0 6px;padding-bottom:5px;border-bottom:1px solid var(--amber-dim);}
+@media print{
+  #sezB{display:block!important;}
+  .btn-print-distinta,.btn-csv{display:none!important;}
+  .distinta-table td,.distinta-table th{border-color:#ccc!important;color:#000!important;background:#fff!important;}
+  .scorta-box{background:#fff8e1!important;border-color:#996600!important;}
+  .scorta-box .scorta-title{color:#996600!important;}
+  .distinta-sub-title{color:#996600!important;border-color:#996600!important;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="logo">CT Carpenteria Ticinese — Bellinzona</div>
+    <h1>Spartizione Manto di Copertura</h1>
+  </div>
+  <span class="badge">v3.0 — 2026</span>
+</header>
+
+<div class="container">
+
+<!-- 1. GEOMETRIA -->
+<div class="section">
+  <div class="section-header"><span class="section-num">1</span><span class="section-title">Geometria del Tetto</span></div>
+  <div class="section-body">
+    <div class="grid3">
+      <div class="field">
+        <label>Larghezza falda (X)</label>
+        <input type="number" id="larghezza" placeholder="8.50" step="0.01" min="0" oninput="aggiornaMisure()">
+        <span class="unit" id="unitLarghezza">metri — proiezione orizzontale, da gronda a gronda</span>
+        <span class="conv-note" id="convLarghezza"></span>
+      </div>
+      <div class="field">
+        <label>Lunghezza colmo (Y)</label>
+        <input type="number" id="lunghezza" placeholder="12.00" step="0.01" min="0" oninput="aggiornaMisure()">
+        <span class="unit">metri — lunghezza del colmo / del tetto</span>
+        <span class="conv-note" id="convLunghezza"></span>
+      </div>
+      <div class="field">
+        <label>N° falde</label>
+        <select id="nFalde">
+          <option value="1">1 falda (monofalda)</option>
+          <option value="2" selected>2 falde (a capanna)</option>
+          <option value="4">4 falde (padiglione)</option>
+        </select>
+        <span class="unit">tipo di tetto</span>
+      </div>
+    </div>
+
+    <!-- MODO MISURA: piano o sul tetto -->
+    <div class="misura-toggle" id="misuraToggle">
+      <span class="mt-lbl">Tipo misura:</span>
+      <label id="lbl_piano">
+        <input type="radio" name="modoMisura" value="piano" checked onchange="aggiornaMisure()">
+        Misura in <strong>PIANO</strong> (proiezione orizzontale)
+      </label>
+      <label id="lbl_pendenza">
+        <input type="radio" name="modoMisura" value="pendenza" onchange="aggiornaMisure()">
+        Misura sul <strong>TETTO</strong> (falda inclinata) — converti automaticamente
+      </label>
+    </div>
+
+    <!-- PENDENZA DOPPIA GRADI / % -->
+    <div style="margin-top:12px;">
+      <label style="display:block;margin-bottom:6px;">Pendenza</label>
+      <div class="pendenza-group">
+        <div class="field">
+          <label>Percentuale (%) — inserire qui</label>
+          <input type="number" id="pendPerc" placeholder="58" step="0.5" min="0.5" max="500" oninput="syncPend('perc')">
+          <span class="unit">es: 58% = 30° — inserire SEMPRE la pendenza in %</span>
+        </div>
+        <div class="pendenza-sep" style="font-size:14px;color:var(--text-dim);">→</div>
+        <div class="field">
+          <label>Gradi (°) — automatico</label>
+          <input type="number" id="pendGradi" placeholder="—" readonly
+            style="opacity:.6;cursor:default;background:var(--surface);">
+          <span class="unit">calcolato automaticamente dal valore %</span>
+        </div>
+      </div>
+    </div>
+    <div id="pendenzaAlert" class="alert alert-err" style="display:none;margin-top:8px;"></div>
+
+    <!-- SPORGENZA GRONDA -->
+    <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+      <div class="grid3">
+        <div class="field">
+          <label>Sporgenza tegola in gronda</label>
+          <input type="number" id="sporgenza" placeholder="55" step="5" min="20" max="100" value="55">
+          <span class="unit">mm — quanto sporge la tegola oltre il frontalino (consigliato: 50–70 mm)</span>
+        </div>
+        <div class="field">
+          <label>Diametro canale gronda</label>
+          <select id="canaleGronda">
+            <option value="100">Ø 100 mm → sporto consigliato 40–50 mm</option>
+            <option value="125" selected>Ø 125 mm → sporto consigliato 50–65 mm</option>
+            <option value="150">Ø 150 mm → sporto consigliato 60–75 mm</option>
+            <option value="0">Senza canale / non so</option>
+          </select>
+          <span class="unit">influenza lo sporto consigliato</span>
+        </div>
+        <div class="field">
+          <label>Scarto materiale (%)</label>
+          <input type="number" id="scarto" placeholder="7" step="1" min="0" max="30" value="7">
+          <span class="unit">per tagli e rotture (consigliato 5–10%)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLMO A MURO -->
+    <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+      <div class="colmo-row">
+        <input type="checkbox" id="colmoMuro" onchange="toggleColmoMuro()">
+        <label for="colmoMuro" class="toggle-lbl" style="cursor:pointer; font-size:12px; color:var(--text);">
+          Colmo contro muro (colmo a muro / Wandanschluss)
+        </label>
+      </div>
+      <div id="colmoMuroBox" style="display:none; margin-top:10px;">
+        <div class="alert alert-info">
+          📐 <strong>Colmo a muro:</strong> L'ultima fila di tegole non tocca mai il muro.<br>
+          Distanza minima tegola → muro: <strong>50–80 mm</strong>.<br>
+          Ultimo listello a 100–150 mm dal filo muro per lasciare spazio alla scossalina.<br>
+          Scossalina (Wandanschluss): lamiera rame/zinco murata min 100 mm nella parete, risvolto sulla falda min 150 mm.<br>
+          Il calcolo della posizione dell'ultimo listello tiene conto di questo automaticamente.
+        </div>
+        <div class="field" style="margin-top:8px; max-width:200px;">
+          <label>Distanza tegola-muro (mm)</label>
+          <input type="number" id="distMuro" placeholder="80" value="80" min="50" max="200">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. ZONA NEVE -->
+<div class="section">
+  <div class="section-header"><span class="section-num">2</span><span class="section-title">Paese e Zona Neve</span></div>
+  <div class="section-body">
+    <div class="grid2">
+      <div class="field">
+        <label>Paese</label>
+        <select id="paese" onchange="aggiornaPaese()">
+          <option value="CH">🇨🇭 Svizzera (SIA 261)</option>
+          <option value="IT">🇮🇹 Italia (NTC 2018)</option>
+          <option value="DE">🇩🇪 Germania (DIN EN 1991-1-3)</option>
+          <option value="AT">🇦🇹 Austria (ÖNORM EN 1991-1-3)</option>
+          <option value="FR">🇫🇷 Francia (NF EN 1991-1-3)</option>
+          <option value="EU">🇪🇺 Altro EU (Eurocode EN 1991-1-3)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Zona neve / Altitudine</label>
+        <select id="zonaneve">
+          <option value="bassa">Bassa quota (piano, &lt; 400 m)</option>
+          <option value="media" selected>Media quota (400–800 m)</option>
+          <option value="alta">Alta quota (800–1500 m)</option>
+          <option value="alpina">Alpina (&gt; 1500 m)</option>
+        </select>
+      </div>
+    </div>
+    <div id="zonaNeveNote" class="alert alert-info" style="margin-top:9px;"></div>
+  </div>
+</div>
+
+<!-- A. ISOLAZIONE TERMICA -->
+<div class="section" id="sezA">
+  <div class="section-header">
+    <span class="section-num" style="background:var(--blue);font-size:10px;">A</span>
+    <span class="section-title">Isolazione Termica</span>
+    <span style="margin-left:auto;font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;">ISO 6946 — SIA 380/1:2016</span>
+  </div>
+  <div class="section-body">
+
+    <div class="iso-config-bar">
+      <div class="field" style="flex:1;min-width:240px;">
+        <label>Configurazione isolante</label>
+        <select id="isoConfig" onchange="caricaIsoConfig()">
+          <option value="1">1 — Strato singolo + viti passanti VGZ</option>
+          <option value="2">2 — Due strati incrociati senza spessoramenti</option>
+          <option value="3" selected>3 — Due strati con spessoramenti intermedi</option>
+          <option value="4">4 — Tre strati (2 morbidi + rigido finale)</option>
+          <option value="5">5 — Personalizzato (aggiungi/rimuovi strati)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="iso-strati" id="isoStrati"></div>
+    <div id="isoAddBtn" style="display:none;">
+      <button class="btn-add-strato" onclick="isoAggiungiStrato()">+ Aggiungi strato isolante</button>
+    </div>
+
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+      <label style="font-size:10px;font-weight:600;color:var(--text-dim);font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:6px;">Sporto Gronda</label>
+      <div class="iso-opt-row">
+        <label><input type="radio" name="isoSporto" value="continuo" checked onchange="calcolaIso()">
+          <strong>Isola lo sporto</strong> (cappotto continuo — consigliato)</label>
+        <label><input type="radio" name="isoSporto" value="travetti" onchange="calcolaIso()">
+          <strong>Non isola lo sporto</strong> (travetti di spessoramento)</label>
+      </div>
+      <div id="isoSportoNote" class="alert alert-info" style="margin-top:7px;display:none;"></div>
+    </div>
+
+    <div style="margin-top:11px;padding-top:11px;border-top:1px solid var(--border);">
+      <label style="font-size:10px;font-weight:600;color:var(--text-dim);font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:6px;">Gommini sotto i controlistelli</label>
+      <div class="iso-opt-row">
+        <label><input type="radio" name="isoGommini" value="singoli" checked onchange="calcolaIso()">
+          Gommini singoli ogni <strong>85 cm</strong> (standard)</label>
+        <label><input type="radio" name="isoGommini" value="guaina" onchange="calcolaIso()">
+          Guaina continua (FV, zone ad alto rischio)</label>
+      </div>
+    </div>
+
+    <div class="iso-stack" id="isoStack">
+      <div style="font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;">Seleziona configurazione per vedere la stratigrafia.</div>
+    </div>
+
+    <div class="iso-uval" id="isoUval" style="display:none;">
+      <div>
+        <div class="uval-num" id="isoUnum">—</div>
+        <div class="uval-label">U [W/m²K]</div>
+      </div>
+      <div class="uval-detail" id="isoUdetail"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 3. TIPO COPERTURA -->
+<div class="section">
+  <div class="section-header"><span class="section-num">3</span><span class="section-title">Tipo di Copertura</span></div>
+  <div class="section-body">
+    <div class="type-grid" id="tipoGrid">
+      <label class="type-btn active" id="btn_tegola">
+        <input type="radio" name="tipo" value="tegola" checked onchange="aggiornaTipo()">
+        <span class="icon">🏠</span><span class="name">Tegola a Incastro</span><span class="sub">marsigliese, romana</span>
+      </label>
+      <label class="type-btn" id="btn_tegola_piana">
+        <input type="radio" name="tipo" value="tegola_piana" onchange="aggiornaTipo()">
+        <span class="icon">▭</span><span class="name">Tegola Piana</span><span class="sub">scorrevole, castoro</span>
+      </label>
+      <label class="type-btn" id="btn_coppo">
+        <input type="radio" name="tipo" value="coppo" onchange="aggiornaTipo()">
+        <span class="icon">🏛</span><span class="name">Coppo / Embrici</span><span class="sub">romano, portoghese</span>
+      </label>
+      <label class="type-btn" id="btn_ardesia">
+        <input type="radio" name="tipo" value="ardesia" onchange="aggiornaTipo()">
+        <span class="icon">⬛</span><span class="name">Ardesia Naturale</span><span class="sub">lastre naturali</span>
+      </label>
+      <label class="type-btn" id="btn_ardesia_sint">
+        <input type="radio" name="tipo" value="ardesia_sint" onchange="aggiornaTipo()">
+        <span class="icon">🔲</span><span class="name">Ardesia Sintetica</span><span class="sub">fibrocemento, ceramica</span>
+      </label>
+      <label class="type-btn" id="btn_lamiera">
+        <input type="radio" name="tipo" value="lamiera" onchange="aggiornaTipo()">
+        <span class="icon">🔶</span><span class="name">Lamiera Aggraffata</span><span class="sub">zinco, rame, acciaio</span>
+      </label>
+      <label class="type-btn" id="btn_ondulata">
+        <input type="radio" name="tipo" value="ondulata" onchange="aggiornaTipo()">
+        <span class="icon">〰</span><span class="name">Lastra Ondulata</span><span class="sub">fibrocemento, PVC</span>
+      </label>
+      <label class="type-btn" id="btn_shingle">
+        <input type="radio" name="tipo" value="shingle" onchange="aggiornaTipo()">
+        <span class="icon">🏡</span><span class="name">Tegola Canadese</span><span class="sub">bituminosa shingle</span>
+      </label>
+      <label class="type-btn" id="btn_pioda">
+        <input type="radio" name="tipo" value="pioda" onchange="aggiornaTipo()">
+        <span class="icon">🪨</span><span class="name">Piode / Beole</span><span class="sub">pietra Ticino</span>
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- 4. MARCA E MODELLO -->
+<div class="section">
+  <div class="section-header"><span class="section-num">4</span><span class="section-title">Marca e Modello (dati ufficiali produttore)</span></div>
+  <div class="section-body">
+    <div class="grid2">
+      <div class="field">
+        <label>Marca</label>
+        <select id="marca" onchange="aggiornaMarca()">
+          <option value="">— seleziona —</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Modello</label>
+        <select id="modello" onchange="aggiornaModello()">
+          <option value="">— seleziona prima la marca —</option>
+        </select>
+      </div>
+    </div>
+    <div class="brand-info" id="brandInfo"></div>
+
+    <!-- MANUALE -->
+    <div style="margin-top:13px; padding-top:13px; border-top:1px solid var(--border);">
+      <div class="section-title" style="font-size:10px;color:var(--text-dim);margin-bottom:9px;">
+        DATI MANUALI — se marca non presente, inserisci dai PDF del fornitore
+      </div>
+      <div class="grid4">
+        <div class="field">
+          <label>Passo listello min (mm)</label>
+          <input type="number" id="passoMin" placeholder="315">
+        </div>
+        <div class="field">
+          <label>Passo listello max (mm)</label>
+          <input type="number" id="passoMax" placeholder="345">
+        </div>
+        <div class="field">
+          <label>Larghezza copertura (mm)</label>
+          <input type="number" id="largCop" placeholder="300">
+          <span class="unit">larghezza utile per fila</span>
+        </div>
+        <div class="field">
+          <label>Pendenza minima (°)</label>
+          <input type="number" id="pendMin" placeholder="17">
+        </div>
+        <div class="field">
+          <label>Pz/m²</label>
+          <input type="number" id="pzMq" placeholder="10" step="0.5">
+        </div>
+        <div class="field">
+          <label>Pz per pacco</label>
+          <input type="number" id="pzPacco" placeholder="5">
+        </div>
+        <div class="field">
+          <label>Lunghezza listelli (m)</label>
+          <select id="lunghListello">
+            <option value="4">4 m (IT/EU standard)</option>
+            <option value="5" selected>5 m (CH standard)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Larghezza lastra (mm)</label>
+          <input type="number" id="largLastra" placeholder="600">
+          <span class="unit">solo per lamiera/ondulata</span>
+        </div>
+      </div>
+      <!-- SALVA PROFILO -->
+      <div style="margin-top:9px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <input type="text" id="nomeProfiloSalva" placeholder="Nome profilo (es: Coppo 50 Ticino)" 
+          style="flex:1; min-width:180px; font-size:12px; padding:7px 10px;">
+        <button class="btn-save-manual" onclick="salvaProfiloManuale()">💾 Salva profilo</button>
+      </div>
+      <div class="saved-profiles" id="savedProfiles"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CALCOLA -->
+<button class="btn-calc" onclick="calcola()">▶ CALCOLA SPARTIZIONE COMPLETA</button>
+
+<!-- RISULTATI -->
+<div id="results">
+
+  <div class="result-hero">
+    <div class="result-hero-title">⚡ Riepilogo — Dati per Falda</div>
+    <div class="result-summary" id="kpiBox"></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-card-title">📐 Posizione Listelli — Dal Basso verso il Colmo</div>
+    <div class="detail-card-body" id="altezzaBox"></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-card-title">↔ Spartizione in Larghezza (tegole per fila)</div>
+    <div class="detail-card-body" id="larghezzaBox"></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-card-title">🪵 Listelli e Controlistelli — Quantità e Sezioni</div>
+    <div class="detail-card-body" id="legnoBox"></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-card-title">❄ Paraneve / Fermaneve</div>
+    <div class="detail-card-body" id="paranBox"></div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-card-title">🗂 Schema Listellatura — Vista Laterale Falda</div>
+    <div class="detail-card-body">
+      <div class="schema-box" id="schemaBox"></div>
+    </div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-card-title">📋 Note Tecniche, Normativa e Avvisi</div>
+    <div class="detail-card-body" id="noteBox"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-sec" onclick="window.print()">🖨 Stampa / PDF</button>
+    <button class="btn-sec" onclick="resetForm()">↩ Nuovo Calcolo</button>
+  </div>
+</div>
+
+<!-- B. DISTINTA MATERIALI -->
+<div id="sezB">
+  <div class="section" style="margin-top:14px;">
+    <div class="section-header">
+      <span class="section-num" style="background:var(--green);font-size:10px;">B</span>
+      <span class="section-title">Distinta Materiali</span>
+    </div>
+    <div class="section-body">
+
+      <div class="distinta-sub-title">🏠 Tegole e Manto di Copertura</div>
+      <table class="distinta-table">
+        <thead><tr>
+          <th>Descrizione</th>
+          <th style="text-align:right">Quantità</th>
+          <th style="text-align:center">Unità</th>
+          <th>Note</th>
+        </tr></thead>
+        <tbody id="distinBodyTegole"></tbody>
+      </table>
+
+      <div class="scorta-box">
+        <div class="scorta-title">⭐ Scorta Cliente — non compresa nella posa</div>
+        <table class="distinta-table">
+          <thead><tr>
+            <th>Voce</th>
+            <th style="text-align:right">Quantità</th>
+            <th style="text-align:center">Unità</th>
+            <th>Note</th>
+          </tr></thead>
+          <tbody id="distinBodyScorta"></tbody>
+        </table>
+      </div>
+
+      <div class="distinta-sub-title" style="margin-top:18px;">🌡 Isolazione Termica</div>
+      <table class="distinta-table">
+        <thead><tr>
+          <th>Descrizione</th>
+          <th style="text-align:right">Quantità</th>
+          <th style="text-align:center">Unità</th>
+          <th>Note</th>
+        </tr></thead>
+        <tbody id="distinBodyIso"></tbody>
+      </table>
+
+      <div class="btn-row" style="margin-top:14px;">
+        <button class="btn-print-distinta" onclick="window.print()">🖨 Stampa Distinta</button>
+        <button class="btn-csv" onclick="esportaCSV()">📥 Esporta CSV</button>
+        <button class="btn-sec" onclick="resetForm()">↩ Nuovo Calcolo</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ============================================================
+// CONVERSIONE PENDENZA  (% → gradi, unica direzione)
+// ============================================================
+function syncPend(src) {
+  if (src === 'gradi') return; // gradi è ora readonly — ignora
+  const p = parseFloat(document.getElementById('pendPerc').value);
+  if (!isNaN(p) && p > 0) {
+    document.getElementById('pendGradi').value = (Math.atan(p / 100) * 180 / Math.PI).toFixed(1);
+  } else {
+    document.getElementById('pendGradi').value = '';
+  }
+  checkPendenzaMin();
+  aggiornaMisure();
+}
+
+// ============================================================
+// ALERT PENDENZA INSUFFICIENTE  (v3)
+// ============================================================
+function checkPendenzaMin() {
+  const percVal  = parseFloat(document.getElementById('pendPerc').value);
+  const pendMin  = parseFloat(document.getElementById('pendMin').value) || 0;
+  if (pendMin <= 0 || isNaN(percVal) || percVal <= 0) { clearPendenzaAlert(); return; }
+  const gradi = Math.atan(percVal / 100) * 180 / Math.PI;
+  if (gradi < pendMin) showPendenzaAlert(gradi, pendMin);
+  else clearPendenzaAlert();
+}
+
+function showPendenzaAlert(gradi, pendMin) {
+  const percIn  = (Math.tan(gradi   * Math.PI / 180) * 100).toFixed(1);
+  const percMin = (Math.tan(pendMin * Math.PI / 180) * 100).toFixed(1);
+  document.getElementById('pendPerc').classList.add('field-error');
+  document.getElementById('pendGradi').classList.add('field-error');
+  const el = document.getElementById('pendenzaAlert');
+  el.innerHTML = `🔴 <strong>PENDENZA INSUFFICIENTE:</strong> hai inserito ${gradi.toFixed(1)}° `
+    + `(${percIn}%) ma il prodotto selezionato richiede almeno `
+    + `<strong>${pendMin.toFixed(1)}° (${percMin}%)</strong>. `
+    + `Senza impermeabilizzazione supplementare il tetto <u>non è garantito dal produttore</u>. `
+    + `Correggi la pendenza o scegli un altro prodotto prima di calcolare.`;
+  el.style.display = 'block';
+}
+
+function clearPendenzaAlert() {
+  document.getElementById('pendPerc').classList.remove('field-error');
+  document.getElementById('pendGradi').classList.remove('field-error');
+  const el = document.getElementById('pendenzaAlert');
+  if (el) el.style.display = 'none';
+}
+
+// ============================================================
+// CONVERSIONE PIANO / SUL TETTO  (v3)
+// ============================================================
+function aggiornaMisure() {
+  const mode    = document.querySelector('input[name="modoMisura"]:checked')?.value || 'piano';
+  const larghVal = parseFloat(document.getElementById('larghezza').value) || 0;
+  const percVal  = parseFloat(document.getElementById('pendPerc').value)  || 0;
+  const convL    = document.getElementById('convLarghezza');
+  const convLu   = document.getElementById('convLunghezza');
+  const unitL    = document.getElementById('unitLarghezza');
+
+  // Aggiorna colore label radio
+  document.getElementById('lbl_piano').style.color    = mode === 'piano'    ? 'var(--amber)' : '';
+  document.getElementById('lbl_pendenza').style.color = mode === 'pendenza' ? 'var(--amber)' : '';
+
+  if (mode === 'pendenza') {
+    unitL.textContent = 'metri — misura SUL TETTO (falda inclinata)';
+    if (percVal > 0 && larghVal > 0) {
+      const cosA  = Math.cos(Math.atan(percVal / 100));
+      const piano = larghVal * cosA;
+      convL.textContent   = `→ proiezione in piano: ${piano.toFixed(3)} m  (fattore cos: ${cosA.toFixed(4)})`;
+      convL.className     = 'conv-note';
+      convL.style.display = 'block';
+    } else if (larghVal > 0) {
+      convL.textContent   = '⚠ inserire prima la pendenza (%) per la conversione';
+      convL.className     = 'conv-note warn';
+      convL.style.display = 'block';
+    } else {
+      convL.style.display = 'none';
+    }
+    convLu.textContent   = 'la lunghezza del colmo è sempre orizzontale — nessuna conversione necessaria';
+    convLu.className     = 'conv-note';
+    convLu.style.display = 'block';
+  } else {
+    unitL.textContent    = 'metri — proiezione orizzontale, da gronda a gronda';
+    convL.style.display  = 'none';
+    convLu.style.display = 'none';
+  }
+}
+
+function toggleColmoMuro() {
+  document.getElementById('colmoMuroBox').style.display =
+    document.getElementById('colmoMuro').checked ? 'block' : 'none';
+}
+
+// ============================================================
+// ZONE NEVE PER PAESE
+// ============================================================
+const ZONE_NOTE = {
+  CH: {
+    bassa: 'Svizzera: zona neve bassa (piano, <400 m). Carico riferimento SIA 261:2020 — sk ~0.4–0.8 kN/m². Fermaneve: valutare per pendenze 20°–60°.',
+    media: 'Svizzera: zona neve media (400–800 m). Carico sk ~0.8–1.5 kN/m² (SIA 261). Fermaneve generalmente necessari > 25°.',
+    alta:  'Svizzera: zona neve alta (800–1500 m). Carico sk ~1.5–3.0 kN/m² (SIA 261). Fermaneve obbligatori. Verifica strutturale consigliata.',
+    alpina:'Svizzera: zona alpina (>1500 m). Carichi elevati, verifica ingegnere obbligatoria. Tegole con paraneve integrato consigliati (es. Monteso ZZ Wancor).'
+  },
+  IT: {
+    bassa: 'Italia: zona I (pianura e coste). Carico neve NTC 2018 Tab. 3.4.I — qsk 0.60–1.00 kN/m². DM 17/01/2018.',
+    media: 'Italia: zona II (collina, 200–750 m). Carico neve qsk 1.00–1.50 kN/m². NTC 2018 §3.4.',
+    alta:  'Italia: zona III (Appennino, Alpi, 750–1500 m). Carico neve qsk 1.50–3.20 kN/m². NTC 2018 §3.4.',
+    alpina:'Italia: zona III alta (>1500 m). Carichi eccezionali — verifica ingegnere strutturista obbligatoria. NTC 2018.'
+  },
+  DE: {
+    bassa: 'Germania: zona neve 1 (pianura settentrionale). Carico sk ~0.65 kN/m² (DIN EN 1991-1-3/NA).',
+    media: 'Germania: zona neve 2/2a (media Germania). Carico sk ~0.85–1.25 kN/m².',
+    alta:  'Germania: zona neve 3/3a (sud, Alpi bavaresi). Carico sk ~1.10–2.30 kN/m².',
+    alpina:'Germania: zona alpina (Alpi). Carichi eccezionali — DIN EN 1991-1-3/NA Appendice C.'
+  },
+  AT: {
+    bassa: 'Austria: zona neve 1 (pianura, Stiria orientale). Carico sk ~0.75 kN/m² (ÖNORM EN 1991-1-3).',
+    media: 'Austria: zona neve 2–3 (400–1000 m). Carico sk ~1.50–2.50 kN/m².',
+    alta:  'Austria: zona neve 4+ (>1000 m). Carichi elevati. Verifica obbligatoria.',
+    alpina:'Austria: zona alpina. Carichi molto elevati. ÖNORM EN 1991-1-3 + Allegato nazionale.'
+  },
+  FR: {
+    bassa: 'Francia: zona A1 (coste, pianure). Carico neve sk ~0.45 kN/m² (NF EN 1991-1-3/AN).',
+    media: 'Francia: zona B1/B2 (collina). Carico sk ~0.65–1.00 kN/m².',
+    alta:  'Francia: zona C1/C2/D (montagna). Carico sk ~1.00–2.00 kN/m².',
+    alpina:'Francia: zona alpina (Alpi, Pirenei). Carichi eccezionali — NF EN 1991-1-3 Appendix.'
+  },
+  EU: {
+    bassa: 'EU generico: Eurocode EN 1991-1-3. Zona neve bassa. Verificare allegato nazionale del paese.',
+    media: 'EU generico: Eurocode EN 1991-1-3. Zona neve media. Verificare allegato nazionale del paese.',
+    alta:  'EU generico: Eurocode EN 1991-1-3. Zona neve alta. Verifica strutturale consigliata.',
+    alpina:'EU generico: Eurocode EN 1991-1-3. Zona alpina. Verifica ingegnere obbligatoria per ogni paese.'
+  }
+};
+
+function aggiornaPaese() {
+  aggiornaNotaZona();
+}
+function aggiornaNotaZona() {
+  const paese = document.getElementById('paese').value;
+  const zona = document.getElementById('zonaneve').value;
+  const el = document.getElementById('zonaNeveNote');
+  el.textContent = (ZONE_NOTE[paese] && ZONE_NOTE[paese][zona]) || '';
+}
+
+// ============================================================
+// DATABASE PRODOTTI — DATI REALI DA SCHEDE TECNICHE
+// ============================================================
+// FONTI: schede tecniche ufficiali BMI/Wierer, ZZ Wancor catalogo 2019,
+// ARDOGRES manuale posa, normativa SIA 180:2014, EN 1304:2013
+const PRODOTTI = {
+  tegola: { // Tegole a incastro — marsigliese, romana, olandese
+    'ZZ Wancor': {
+      // Fonte: Catalogo ZZ Wancor 4a ed. 2019 — passo indicativo da catalogo.
+      // I passi esatti variano per falda: RICHIEDERE MASSBUCH (libro misure) al fornitore.
+      'Campa — marsigliese scorrevole (13 pz/m²)':
+        {passoMin:330,passoMax:380,largCop:290,pendMin:17,pzMq:13,pzPacco:10,
+         note:'Marsigliese scorrevole. Posa in linea o incrociata. Sede produttiva: Laufen (BL). Richiedere Massbuch per passo preciso.'},
+      'Arteso — marsigliese scorrevole grande (10 pz/m²)':
+        {passoMin:350,passoMax:390,largCop:330,pendMin:15,pzMq:10,pzPacco:10,
+         note:'Grande formato. Economica per grandi superfici. Sede Laufen (BL).'},
+      'Monteso — marsigliese con paraneve integrato (10 pz/m²)':
+        {passoMin:350,passoMax:390,largCop:330,pendMin:15,pzMq:10,pzPacco:10,
+         note:'Come Arteso ma con 2 naselli paraneve integrati. Riduce fermaneve aggiuntivi. Zone alpine/prealpine. Sede Laufen (BL).'},
+      'Neva Nova — tegola cuore scorrevole (13 pz/m²)':
+        {passoMin:315,passoMax:355,largCop:285,pendMin:20,pzMq:13,pzPacco:10,
+         note:'Tegola cuore con nasello fermaneve. Zone alpine. Sede Istighofen (TG).'},
+      'Pada — olandese Ludovici (13 pz/m²)':
+        {passoMin:320,passoMax:360,largCop:285,pendMin:17,pzMq:13,pzPacco:10,
+         note:'Tegola olandese Ludovici. Profilo curvo/arcuato. Atmosfera mediterranea. Sede Laufen (BL). NOTA: stessi passo e largCop della Arteso — verificare con fornitore.'},
+      'Alegra — olandese Ludovici scorrevole (10 pz/m²)':
+        {passoMin:350,passoMax:395,largCop:330,pendMin:15,pzMq:10,pzPacco:10,
+         note:'Olandese Ludovici grande formato scorrevole. Sede Laufen (BL).'},
+    },
+    'Wierer (BMI)': {
+      // Fonte: schede tecniche ufficiali BMI/Wierer, verificate su bmigroup.com
+      'Doppia Romana — 10 pz/m²':
+        {passoMin:315,passoMax:345,largCop:300,pendMin:16.7,pzMq:10,pzPacco:10,
+         note:'Fonte: BMI bmigroup.com. Passo listello 315–345 mm. Largh. copertura 300 mm. Pendenza min 16.7°. Peso netto 4.35–4.40 kg/pz. Garanzia 30 anni. Posa su aggancio obbligatoria.'},
+      'Coppo di Francia — 10 pz/m²':
+        {passoMin:315,passoMax:345,largCop:300,pendMin:17,pzMq:10,pzPacco:10,
+         note:'Fonte: scheda tecnica BMI. Passo 315–345 mm. Copertura 300 mm. Pendenza min 17°. Peso 4.4–4.6 kg. Impermeabilizzazione secondaria < 25°. Listello consigliato 4×4 cm.'},
+      'Coppo di Grecia — 10 pz/m²':
+        {passoMin:315,passoMax:345,largCop:300,pendMin:17,pzMq:10,pzPacco:10,
+         note:'Fonte: scheda tecnica BMI. Passo 315–345 mm. Copertura 300 mm. Peso 4.7–4.9 kg. Garanzia 30 anni.'},
+      'Coppo del Borgo — 7 pz/m²':
+        {passoMin:315,passoMax:345,largCop:380,pendMin:20,pzMq:7,pzPacco:6,
+         note:'Fonte: scheda tecnica BMI. Passo 31.5–34.5 cm. Fabbisogno 7–7.5 pz/m². Fissaggio con ganci (no nasello). Listelli battuta H 4 cm.'},
+      'Tegal Innotech — ~10 pz/m²':
+        {passoMin:300,passoMax:340,largCop:310,pendMin:15,pzMq:10,pzPacco:10,
+         note:'Tegola piana moderna cementizia. Profilo grigio ardesia. Passo indicativo 300–340 mm. Verifica passo esatto su manuale BMI.'},
+    },
+    'Coppo Possagno': {
+      'Portoghese — 13 pz/m²':
+        {passoMin:300,passoMax:335,largCop:280,pendMin:17,pzMq:13,pzPacco:10,
+         note:'Tegola portoghese laterizio. ~13 pz/m². Peso ~28–35 kg/m². Posa su listelli 3×5 cm.'},
+      'Doppio Romano — 10 pz/m²':
+        {passoMin:315,passoMax:345,largCop:295,pendMin:17,pzMq:10,pzPacco:10,
+         note:'Doppia romana laterizio. ~10 pz/m². Compatibile con accessori BMI.'},
+    },
+  },
+
+  tegola_piana: { // Tegole piatte scorrevoli, castoro
+    'ZZ Wancor': {
+      'Fama — piatta scorrevole (13 pz/m²)':
+        {passoMin:160,passoMax:185,largCop:175,pendMin:22,pzMq:13,pzPacco:10,
+         note:'La tegola piana più usata in Svizzera. Solo posa in linea. Sede Istighofen (TG). Poso INDICATIVO — richiedere Massbuch ZZ Wancor per passo esatto in funzione della falda.'},
+      'Jura — piatta scorrevole (13 pz/m²)':
+        {passoMin:160,passoMax:185,largCop:175,pendMin:22,pzMq:13,pzPacco:10,
+         note:'Profilo leggermente arcuato. Colori bruno-rossicce. Solo posa in linea. Sede Laufen (BL).'},
+      'Swiss TL — piatta scorrevole grande (10 pz/m²)':
+        {passoMin:185,passoMax:210,largCop:200,pendMin:22,pzMq:10,pzPacco:10,
+         note:'Grande formato, per grandi superfici. ~10 pz/m². Sede Laufen (BL).'},
+      'Plano — liscia scorrevole (10 pz/m²)':
+        {passoMin:185,passoMax:215,largCop:200,pendMin:22,pzMq:10,pzPacco:10,
+         note:'Tegola liscia moderna. Linee pulite. Sede ZZ Wancor.'},
+      'Vauban — castoro ad incastro (22 pz/m²)':
+        {passoMin:140,passoMax:165,largCop:135,pendMin:25,pzMq:22,pzPacco:10,
+         note:'Tegola castoro (Biberschwanz) ad incastro. ~22 pz/m². Posa incrociata obbligatoria. Sede ZZ Wancor.'},
+      'Casta — coda di castoro tradizionale (17 pz/m²)':
+        {passoMin:140,passoMax:165,largCop:140,pendMin:25,pzMq:17,pzPacco:10,
+         note:'Tegola coda di castoro tradizionale (Biberschwanz classica). ~17 pz/m². Disponibile punta arrotondata o punta dritta. Tetti storici. Sede Laufen (BL).'},
+      'Bellus — ardesia ceramica (28 pz/m²)':
+        {passoMin:120,passoMax:160,largCop:160,pendMin:25,pzMq:28,pzPacco:10,
+         note:'Tegola ardesia ceramica sottile. La più leggera del mercato CH. ~28 pz/m². Simula ardesia naturale. Magazzino Istighofen (TG).'},
+    },
+    'Wierer (BMI)': {
+      'Tegal Innotech piana — ~10 pz/m²':
+        {passoMin:300,passoMax:340,largCop:310,pendMin:15,pzMq:10,pzPacco:10,
+         note:'Profilo piano moderno in cemento. Colore grigio naturale. Passo verificare scheda BMI.'},
+    },
+  },
+
+  coppo: {
+    'ZZ Wancor': {
+      'Roma 1.2 — coppo romano/embrici (12 pz/m²)':
+        {passoMin:290,passoMax:340,largCop:180,pendMin:22,pzMq:12,pzPacco:10,
+         note:'Coppo romano + embrice (tegola piana sotto). Posa su doppia listellatura. Sede ZZ Wancor. Richiedere istruzioni posa specifica.'},
+    },
+    'Wierer (BMI)': {
+      'Coppo Titan — cementizio (BMI)':
+        {passoMin:280,passoMax:330,largCop:170,pendMin:15,pzMq:18,pzPacco:6,
+         note:'Coppo cementizio BMI. Sistema Isotegola Evolution per bassa pendenza (min 10%). Posa dal basso verso colmo.'},
+    },
+    'Coppo Possagno': {
+      'Coppo Classico laterizio':
+        {passoMin:270,passoMax:310,largCop:160,pendMin:22,pzMq:20,pzPacco:10,
+         note:'Coppo laterizio classico. ~20 pz/m². Richiede sottocoppo. Posa su doppia listellatura.'},
+    },
+    'Coppo tradizionale (generico)': {
+      'Coppo 50 cm — tradizionale Ticino':
+        {passoMin:280,passoMax:320,largCop:160,pendMin:22,pzMq:18,pzPacco:10,
+         note:'Coppo tradizionale tipico tetto ticinese. L. 50 cm. Posa sempre su doppia listellatura con intercapedine ventilazione 50 mm (min CH).'},
+    },
+  },
+
+  ardesia: {
+    'Ardesia naturale (Svizzera/Italia/Spagna)': {
+      'Lastre ardesia naturale — grandi (25 pz/m²)':
+        {passoMin:90,passoMax:130,largCop:200,pendMin:25,pzMq:25,pzPacco:1,
+         note:'Ardesia naturale. Posa a giunti sfalsati sfalsati. Fissaggio con ganci/chiodi in rame (mai ferro, ossida e macchia). Pendenza minima 25°. Supporto: tavolato 24 mm o listelli ravvicinati 40 mm.'},
+      'Lastre ardesia naturale — piccole (35 pz/m²)':
+        {passoMin:90,passoMax:110,largCop:160,pendMin:25,pzMq:35,pzPacco:1,
+         note:'Ardesia formato piccolo. Peso ca. 25–35 kg/m². Chiodi in rame o inox. Supporto: tavolato.'},
+    },
+    'ARDOGRES (grès ceramico)': {
+      'Ardogres passo 180 mm — 25 pz/m²':
+        {passoMin:140,passoMax:180,largCop:250,pendMin:18,pzMq:25,pzPacco:5,
+         note:'Fonte: ARDOGRES Manuale Posa. 3 passi possibili: 140, 160, 180 mm — in funzione di pendenza e zona climatica. Garanzia 50 anni. Supporto: listelli su controlistelli. Pendenza min 18°.'},
+    },
+  },
+
+  ardesia_sint: {
+    'Onduline': {
+      'Onduline Classic — bituminosa':
+        {passoMin:170,passoMax:220,largCop:760,pendMin:10,pzMq:1.5,pzPacco:1,
+         note:'Lastra ondulata bituminosa. Larghezza utile ca. 760 mm. Sormonto laterale 1 onda. Sormonto in altezza min 15 cm. Supporto: listelli 30×50 ogni 45–60 cm (pendenza dipendente).'},
+    },
+    'Eternit (Etex)': {
+      'Lastra ondulata fibrocemento NT':
+        {passoMin:0,passoMax:0,largCop:1140,pendMin:10,pzMq:1,pzPacco:1,
+         note:'Lastra ondulata fibrocemento 1.75×1.14 m. Larghezza utile 1.14 m (1 onda sormonto). Sormonto verticale min 20 cm. Arcarecci ogni 100–120 cm (< 20° ogni 60–80 cm).'},
+    },
+  },
+
+  lamiera: {
+    'Zinco-titanio (VM Zinc, Rheinzink)': {
+      'Aggraffatura doppia — pannelli 530 mm':
+        {passoMin:0,passoMax:0,largCop:530,pendMin:3,pzMq:0,pzPacco:1,
+         note:'Lamiera zinco-titanio a doppia aggraffatura. Larghezza panello utile 530 mm (o 600 mm a seconda del formato). Supporto: tavolato continuo 24 mm o listelli 40×50 ravvicinati ogni 30–40 cm. ATTENZIONE: NO saldatura a stagno sullo zinco-titanio grezzo. Solo aggraffatura o incollaggio MS-Polymer certificato.'},
+      'Aggraffatura doppia — pannelli 600 mm':
+        {passoMin:0,passoMax:0,largCop:600,pendMin:3,pzMq:0,pzPacco:1,
+         note:'Lamiera zinco-titanio. Larghezza utile 600 mm. Giunti di dilatazione ogni 10 m. Intercapedine ventilazione min 50 mm (CH: SIA 180).'},
+    },
+    'Rame': {
+      'Rame aggraffatura — pannelli 500 mm':
+        {passoMin:0,passoMax:0,largCop:500,pendMin:3,pzMq:0,pzPacco:1,
+         note:'Rame spessore 0.6–0.7 mm. Aggraffatura doppia. Saldatura a stagno 60/40 possibile (solo rame). Giunti dilatazione ogni 10 m. Compatibile con zinco-titanio? NO — metalli diversi, rischio corrosione galvanica.'},
+    },
+    'Acciaio prelaccato (Prelacca)': {
+      'Profilo grecato — larghezza 900 mm':
+        {passoMin:0,passoMax:0,largCop:900,pendMin:5,pzMq:0,pzPacco:1,
+         note:'Lamiera grecata acciaio prelaccato. Larghezza utile ca. 900 mm. Sormonto laterale 1 onda. Fissaggio con viti autofilettanti a testa cap. Arcarecci ogni 100–150 cm.'},
+    },
+  },
+
+  ondulata: {
+    'Fibrocemento': {
+      'Lastra 7 onde — 177×109 cm':
+        {passoMin:0,passoMax:0,largCop:1140,pendMin:10,pzMq:1,pzPacco:1,
+         note:'Lastra fibrocemento 177×109 cm (ca.). Larghezza utile 1 onda sormonto = ~114 cm. Sormonto verticale min 20 cm (< 15° min 30 cm). Supporto: listelli 50×50 ogni 80–100 cm.'},
+    },
+    'PVC ondulata': {
+      'Lastra PVC trasparente':
+        {passoMin:0,passoMax:0,largCop:700,pendMin:8,pzMq:1.5,pzPacco:1,
+         note:'Lastra PVC ondulata. Larghezza utile ~700 mm. Sormonto 1 onda. Supporto uguale a fibrocemento. Giunti dilatazione ogni 6 m (PVC si dilata molto).'},
+    },
+  },
+
+  shingle: {
+    'Tegola canadese (bituminosa)': {
+      'Shingle 3-tab — standard':
+        {passoMin:0,passoMax:0,largCop:914,pendMin:18,pzMq:7,pzPacco:21,
+         note:'Tegola bituminosa 3-tab. 1 pacco = 21 pz = ca. 3.05 m². Supporto: tavolato continuo OSB 15 mm o tavole a giunti sfalsati. Striscia starter obbligatoria. Fissaggio: 4 chiodi/pz + adesivo sulla striscia autoadesiva. Pendenza min 18° (2:12). ATTENZIONE: 14° possibile con doppia fila starter.'},
+    },
+    'Shingle architettonico': {
+      'Shingle laminato dimensionale':
+        {passoMin:0,passoMax:0,largCop:914,pendMin:14,pzMq:5,pzPacco:16,
+         note:'Shingle laminato spesso. Più robusto del 3-tab. Pendenza min 14° (possibile 11° con membrana). Supporto: tavolato continuo. 1 pacco ~3.25 m².'},
+    },
+  },
+
+  pioda: {
+    'Pietra locale (Ticino, Vallese)': {
+      'Piode / Beole — lastre irregolari':
+        {passoMin:0,passoMax:0,largCop:0,pendMin:30,pzMq:0,pzPacco:1,
+         note:'ATTENZIONE: posa artigianale, ogni falda è diversa. Peso 60–120 kg/m² — VERIFICA STRUTTURALE OBBLIGATORIA con ingegnere. Supporto: tavolato massello 30–40 mm. Fissaggio: chiodi in rame o ganci inox. Non si presta a calcolo standardizzato — contattare artigiano pietra locale specializzato.'},
+    },
+  },
+};
+
+// ============================================================
+// INIT UI
+// ============================================================
+window.onload = function() {
+  aggiornaTipo();
+  aggiornaPaese();
+  document.getElementById('zonaneve').addEventListener('change', aggiornaNotaZona);
+  caricaProfiliSalvati();
+  aggiornaMisure(); // v3: init stato radio misura
+  caricaIsoConfig(); // v3: init sezione A isolazione
+};
+
+function aggiornaTipo() {
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  const sel = document.querySelector('input[name=tipo]:checked');
+  if (sel) sel.closest('.type-btn').classList.add('active');
+  const tipo = sel ? sel.value : 'tegola';
+  const marcaEl = document.getElementById('marca');
+  marcaEl.innerHTML = '<option value="">— seleziona —</option>';
+  document.getElementById('modello').innerHTML = '<option value="">— seleziona prima la marca —</option>';
+  document.getElementById('brandInfo').className = 'brand-info';
+  Object.keys(PRODOTTI[tipo] || {}).forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = m;
+    marcaEl.appendChild(opt);
+  });
+  pulisciManuale();
+}
+
+function aggiornaMarca() {
+  const tipo = document.querySelector('input[name=tipo]:checked')?.value;
+  const marca = document.getElementById('marca').value;
+  const modelloEl = document.getElementById('modello');
+  modelloEl.innerHTML = '<option value="">— seleziona —</option>';
+  document.getElementById('brandInfo').className = 'brand-info';
+  pulisciManuale();
+  if (!tipo || !marca) return;
+  Object.keys(PRODOTTI[tipo][marca] || {}).forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = m;
+    modelloEl.appendChild(opt);
+  });
+}
+
+function aggiornaModello() {
+  const tipo = document.querySelector('input[name=tipo]:checked')?.value;
+  const marca = document.getElementById('marca').value;
+  const modello = document.getElementById('modello').value;
+  const info = document.getElementById('brandInfo');
+  if (!tipo || !marca || !modello) { info.className = 'brand-info'; return; }
+  const d = PRODOTTI[tipo]?.[marca]?.[modello];
+  if (!d) return;
+  if (d.passoMin) document.getElementById('passoMin').value = d.passoMin;
+  if (d.passoMax) document.getElementById('passoMax').value = d.passoMax;
+  if (d.largCop)  document.getElementById('largCop').value  = d.largCop;
+  if (d.pendMin)  document.getElementById('pendMin').value  = d.pendMin;
+  if (d.pzMq)    document.getElementById('pzMq').value    = d.pzMq;
+  if (d.pzPacco) document.getElementById('pzPacco').value = d.pzPacco;
+  info.className = 'brand-info visible';
+  const percMinStr = d.pendMin > 0
+    ? ' (' + (Math.tan(d.pendMin * Math.PI / 180) * 100).toFixed(1) + '%)' : '';
+  info.innerHTML = `<strong>${marca} — ${modello}</strong><br>
+    Passo listello: <strong>${d.passoMin > 0 ? d.passoMin+'–'+d.passoMax+' mm' : 'N/A'}</strong> &nbsp;|&nbsp;
+    Largh. utile: <strong>${d.largCop > 0 ? d.largCop+' mm' : 'N/A'}</strong> &nbsp;|&nbsp;
+    Pend. min: <strong>${d.pendMin}°${percMinStr}</strong> &nbsp;|&nbsp;
+    <strong>${d.pzMq > 0 ? '~'+d.pzMq+' pz/m²' : '—'}</strong><br>
+    <span style="color:var(--text-dim)">${d.note}</span>`;
+  checkPendenzaMin(); // v3: verifica subito la pendenza inserita
+}
+
+function pulisciManuale() {
+  ['passoMin','passoMax','largCop','pendMin','pzMq','pzPacco'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('largLastra').value = '';
+}
+
+// ============================================================
+// PROFILI MANUALI (localStorage)
+// ============================================================
+function salvaProfiloManuale() {
+  const nome = document.getElementById('nomeProfiloSalva').value.trim();
+  if (!nome) { alert('Inserisci un nome per il profilo!'); return; }
+  const profilo = {
+    nome,
+    passoMin: document.getElementById('passoMin').value,
+    passoMax: document.getElementById('passoMax').value,
+    largCop:  document.getElementById('largCop').value,
+    pendMin:  document.getElementById('pendMin').value,
+    pzMq:     document.getElementById('pzMq').value,
+    pzPacco:  document.getElementById('pzPacco').value,
+    lunghListello: document.getElementById('lunghListello').value,
+    largLastra: document.getElementById('largLastra').value,
+  };
+  let profili = JSON.parse(localStorage.getItem('ct_copertura_profili') || '[]');
+  const idx = profili.findIndex(p => p.nome === nome);
+  if (idx >= 0) profili[idx] = profilo;
+  else profili.push(profilo);
+  localStorage.setItem('ct_copertura_profili', JSON.stringify(profili));
+  document.getElementById('nomeProfiloSalva').value = '';
+  caricaProfiliSalvati();
+  alert('✓ Profilo "' + nome + '" salvato!');
+}
+
+function caricaProfiliSalvati() {
+  const profili = JSON.parse(localStorage.getItem('ct_copertura_profili') || '[]');
+  const box = document.getElementById('savedProfiles');
+  if (profili.length === 0) { box.innerHTML = ''; return; }
+  box.innerHTML = '<div style="font-size:10px;color:var(--text-dim);font-family:DM Mono,monospace;margin-bottom:5px;">PROFILI SALVATI:</div>' +
+    profili.map((p,i) => 
+      `<span class="saved-profile-btn" onclick="applicaProfilo(${i})">${p.nome}</span>
+       <span class="saved-profile-btn" style="color:var(--red);border-color:var(--red)" onclick="eliminaProfilo(${i})">✕</span>`
+    ).join('');
+}
+
+function applicaProfilo(i) {
+  const profili = JSON.parse(localStorage.getItem('ct_copertura_profili') || '[]');
+  const p = profili[i];
+  if (!p) return;
+  ['passoMin','passoMax','largCop','pendMin','pzMq','pzPacco','largLastra'].forEach(id => {
+    if (p[id] !== undefined) document.getElementById(id).value = p[id];
+  });
+  if (p.lunghListello) document.getElementById('lunghListello').value = p.lunghListello;
+  document.getElementById('brandInfo').className = 'brand-info visible';
+  document.getElementById('brandInfo').innerHTML = `<strong>Profilo: ${p.nome}</strong> (caricato da memoria locale)`;
+}
+
+function eliminaProfilo(i) {
+  let profili = JSON.parse(localStorage.getItem('ct_copertura_profili') || '[]');
+  profili.splice(i, 1);
+  localStorage.setItem('ct_copertura_profili', JSON.stringify(profili));
+  caricaProfiliSalvati();
+}
+
+// ============================================================
+// FERMANEVE — calcolo per zona e pendenza
+// ============================================================
+function calcolaFermaneve(pendGradi, lunghFaldaReale, larghezza, zona, paese, tipo) {
+  if (['lamiera','ondulata','shingle'].includes(tipo)) {
+    return {file:0, perFile:0, totale:0,
+      note:'Per lamiera/ondulata/shingle: utilizzare fermaneve tubolare o a barra continua. Calcolo specifico richiesto da tecnico.'};
+  }
+  if (pendGradi < 20) return {file:0, perFile:0, totale:0,
+    note:'Pendenza < 20° (< 36%): neve tende a rimanere stabile. Fermaneve non richiesti dalla norma (< 36% per CH SIA 261 e IT NTC 2018).'};
+  if (pendGradi > 60) return {file:0, perFile:0, totale:0,
+    note:'Pendenza > 60°: neve non si accumula. Fermaneve non necessari (> 176% per IT DM 14/01/2008; regola analoga in CH).'};
+
+  const zonaF = {bassa:1.0, media:1.5, alta:2.0, alpina:2.5};
+  const f = zonaF[zona] || 1.5;
+  const pendF = pendGradi < 30 ? 1.0 : pendGradi < 45 ? 1.5 : 2.0;
+  const lunghF = lunghFaldaReale < 4 ? 1.0 : lunghFaldaReale < 7 ? 1.5 : lunghFaldaReale < 10 ? 2.0 : 2.5;
+
+  let nFile = Math.ceil(f * pendF * lunghF * 0.5);
+  nFile = Math.max(1, Math.min(nFile, 6));
+  const perFile = Math.ceil(larghezza / 0.90); // 1 gancio ogni ~90 cm
+  const totale = nFile * perFile;
+  const interasse = nFile > 1 ? Math.round((lunghFaldaReale * 100) / (nFile + 1)) : 0;
+  let noteStr = `${nFile} fila/e parallele alla gronda. ${perFile} ganci per fila (ogni ~90 cm). Prima fila a 30–50 cm dalla gronda.`;
+  if (nFile >= 2) noteStr += ` Interasse tra file: ~${interasse} cm.`;
+  noteStr += ` Norma CH: SIA 261:2020 + UNI EN 9460:2008.`;
+  return {file:nFile, perFile, totale, note:noteStr};
+}
+
+// ============================================================
+// CALCOLO PRINCIPALE
+// ============================================================
+function calcola() {
+  // --- PENDENZA: % è l'input primario, gradi calcolati ---
+  const pendPercRaw = parseFloat(document.getElementById('pendPerc').value);
+  const pendGradiRaw = parseFloat(document.getElementById('pendGradi').value);
+  const pendPerc  = !isNaN(pendPercRaw) && pendPercRaw > 0 ? pendPercRaw
+                  : (!isNaN(pendGradiRaw) && pendGradiRaw > 0 ? Math.tan(pendGradiRaw * Math.PI / 180) * 100 : 0);
+  const pendGradi = pendPerc > 0 ? Math.atan(pendPerc / 100) * 180 / Math.PI : pendGradiRaw;
+
+  // --- MISURA SUL TETTO: conversione larghezza se necessario ---
+  let larghezzaInput = parseFloat(document.getElementById('larghezza').value);
+  const modoMisura   = document.querySelector('input[name="modoMisura"]:checked')?.value || 'piano';
+  let larghezza = larghezzaInput;
+  if (modoMisura === 'pendenza' && pendPerc > 0 && !isNaN(larghezzaInput)) {
+    larghezza = larghezzaInput * Math.cos(Math.atan(pendPerc / 100));
+  }
+
+  const lunghezza = parseFloat(document.getElementById('lunghezza').value);
+  const nFalde    = parseInt(document.getElementById('nFalde').value);
+  const sporgenza = parseInt(document.getElementById('sporgenza').value) || 55;
+  const scarto    = parseFloat(document.getElementById('scarto').value) || 7;
+  const zona      = document.getElementById('zonaneve').value;
+  const paese     = document.getElementById('paese').value;
+  const tipo      = document.querySelector('input[name=tipo]:checked')?.value || 'tegola';
+  const colmoMuro = document.getElementById('colmoMuro').checked;
+  const distMuro  = parseInt(document.getElementById('distMuro').value) || 80;
+  const lunghListello = parseFloat(document.getElementById('lunghListello').value) || 5;
+
+  if (!larghezza || !lunghezza || !pendGradi) {
+    alert('Inserisci larghezza, lunghezza e pendenza (%)!'); return;
+  }
+
+  const passoMin    = parseFloat(document.getElementById('passoMin').value) || 0;
+  const passoMax    = parseFloat(document.getElementById('passoMax').value) || 0;
+  const largCop     = parseFloat(document.getElementById('largCop').value)  || 0;
+  const pendMinProd = parseFloat(document.getElementById('pendMin').value)  || 0;
+  const pzMq        = parseFloat(document.getElementById('pzMq').value)     || 0;
+  const pzPacco     = parseFloat(document.getElementById('pzPacco').value)  || 10;
+  const largLastra  = parseFloat(document.getElementById('largLastra').value) || largCop;
+
+  // --- BLOCCO PENDENZA MINIMA PRODUTTORE (v3) ---
+  if (pendMinProd > 0 && pendGradi < pendMinProd) {
+    showPendenzaAlert(pendGradi, pendMinProd);
+    document.getElementById('pendenzaAlert').scrollIntoView({behavior:'smooth', block:'center'});
+    return; // blocca il calcolo
+  }
+  clearPendenzaAlert();
+
+  const notes = [];
+  const pendRad = pendGradi * Math.PI / 180;
+
+  // --- nota conversione sul tetto ---
+  if (modoMisura === 'pendenza' && pendPerc > 0) {
+    const cosA = Math.cos(pendRad);
+    notes.push(`📐 <strong>Conversione misura:</strong> larghezza inserita ${larghezzaInput.toFixed(2)} m (sul tetto) → `
+      + `<strong>${larghezza.toFixed(3)} m in piano</strong> (÷ cos ${pendGradi.toFixed(1)}° = × ${cosA.toFixed(4)}).`);
+  }
+
+  // GEOMETRIA
+  const lunghFaldaReale = larghezza / Math.cos(pendRad); // lunghezza falda inclinata
+  const superficieUnaFalda = lunghFaldaReale * lunghezza;
+  const superficieReale = superficieUnaFalda * nFalde;
+
+  // TIPO SUPPORTO
+  const tipiListelli = ['tegola','tegola_piana','coppo','ardesia','ardesia_sint'];
+  const tipiTavolato = ['shingle','pioda'];
+  const tipiLamiera  = ['lamiera','ondulata'];
+
+  let tipoSupporto = 'listelli';
+  if (tipiTavolato.includes(tipo)) tipoSupporto = 'tavolato';
+  if (tipiLamiera.includes(tipo))  tipoSupporto = 'lamiera_continua';
+
+  // ===== SPARTIZIONE IN ALTEZZA =====
+  let nFile = 0, passoOttimo = 0, residuoMm = 0;
+  let posizioniListelli = []; // array mm dal basso (bordo esterno gronda)
+
+  if (tipoSupporto === 'listelli' && passoMin > 0 && passoMax > 0) {
+    // La lunghezza da coprire con i listelli è:
+    // lunghFaldaReale - sporgenza_gronda/cos(pend) + offset colmo_a_muro
+    // Semplificato: usiamo la lunghezza reale falda meno la sporgenza
+    const sporgenzaReale = sporgenza; // mm
+    const reservaColmo = colmoMuro ? (distMuro + 100) : 50; // mm dal colmo
+    const lungDaCoprire = (lunghFaldaReale * 1000) - sporgenzaReale - reservaColmo;
+
+    // Trova passo che minimizza il residuo
+    let bestPasso = passoMin, bestRes = 9999, bestN = 0;
+    for (let p = passoMin; p <= passoMax; p++) {
+      const n = Math.floor(lungDaCoprire / p);
+      const res = lungDaCoprire - n * p;
+      if (res < bestRes) { bestRes = res; bestPasso = p; bestN = n; }
+    }
+    passoOttimo = bestPasso;
+    nFile = bestN;
+    residuoMm = bestRes;
+
+    // Calcola posizioni listelli dal basso
+    // Listello 1 (gronda): a passo_ottimo mm dalla sporgenza della tegola
+    // In realtà: l'asse del listello di gronda è a sporgenza + (passo - lunghezza_nasello)
+    // Per semplicità: primo listello asse a "passoOttimo - sporgenza" dal bordo basso
+    // (la tegola appoggia col nasello sul listello, la punta sporge di "sporgenza" mm oltre il bordo)
+    for (let i = 0; i <= nFile; i++) {
+      posizioniListelli.push(Math.round(i * passoOttimo));
+    }
+  }
+
+  // ===== SPARTIZIONE IN LARGHEZZA =====
+  let nTegoleFila = 0, residuoLarg = 0;
+  const largEff = largCop > 0 ? largCop : (largLastra > 0 ? largLastra : 0);
+  if (largEff > 0) {
+    nTegoleFila = Math.floor((lunghezza * 1000) / largEff);
+    residuoLarg = (lunghezza * 1000) - (nTegoleFila * largEff);
+  }
+
+  // ===== QUANTITATIVI =====
+  let totTegoleFalda = 0, totTegoleTot = 0, pacchi = 0;
+  if (pzMq > 0) {
+    totTegoleFalda = Math.ceil(superficieUnaFalda * pzMq * (1 + scarto / 100));
+    totTegoleTot = totTegoleFalda * nFalde;
+    pacchi = Math.ceil(totTegoleTot / pzPacco);
+  }
+
+  // ===== LISTELLI =====
+  // Listelli battuta (portategola, orizzontali): uno per ogni file + 1 gronda = nFile + 1
+  const nListelliBattuta = nFile > 0 ? nFile + 1 : 0;
+  const mlListelliBattutaPerFalda = nListelliBattuta * lunghezza;
+  const mlListelliBattutaTot = mlListelliBattutaPerFalda * nFalde;
+  const nBarreBattuta = Math.ceil(mlListelliBattutaTot / lunghListello);
+
+  // Controlistelli (verticali, sui puntoni): interasse 60 cm
+  const nPuntoni = Math.ceil(lunghezza / 0.60) + 1;
+  const mlControlistelliPerFalda = nPuntoni * lunghFaldaReale;
+  const mlControlistelliTot = mlControlistelliPerFalda * nFalde;
+  const nBarreControlist = Math.ceil(mlControlistelliTot / lunghListello);
+
+  // ===== FERMANEVE =====
+  const fermaneve = calcolaFermaneve(pendGradi, lunghFaldaReale, lunghezza, zona, paese, tipo);
+
+  // ===== RENDER =====
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+
+  // KPI
+  const kpiItems = [
+    {val: superficieReale.toFixed(1), lbl: 'm² reali inclinati (tot.)'},
+    {val: (lunghezza * larghezza * nFalde).toFixed(1), lbl: 'm² piano (proiezione)'},
+    {val: lunghFaldaReale.toFixed(2) + ' m', lbl: 'lungh. falda reale incl.'},
+    {val: pendGradi.toFixed(1) + '° / ' + pendPerc.toFixed(0) + '%', lbl: 'pendenza'},
+    {val: nFile > 0 ? nFile : '—', lbl: 'file tegole (per falda)'},
+    {val: passoOttimo > 0 ? passoOttimo + ' mm' : '—', lbl: 'passo listello ottimale'},
+    {val: totTegoleTot > 0 ? totTegoleTot : '—', lbl: 'tegole tot. (con scarto)'},
+    {val: pacchi > 0 ? pacchi : '—', lbl: 'pacchi da ordinare'},
+  ];
+  document.getElementById('kpiBox').innerHTML = kpiItems.map(k =>
+    `<div class="kpi"><div class="kpi-val">${k.val}</div><div class="kpi-label">${k.lbl}</div></div>`
+  ).join('');
+
+  // ALTEZZA
+  let htmlAlt = '';
+  if (tipoSupporto === 'listelli' && nFile > 0) {
+    htmlAlt += `<div class="row-data"><span class="lbl">SPORGENZA TEGOLA in gronda</span><span class="val amber">${sporgenza} mm oltre il frontalino</span></div>`;
+    htmlAlt += `<div class="row-data"><span class="lbl">Posizione listello 1 (gronda — RIALZATO)</span><span class="val amber">A ${sporgenza} mm dal bordo gronda — sezione 5×5 cm (rialzato +20 mm)</span></div>`;
+    htmlAlt += `<div class="row-data"><span class="lbl">Passo listello ottimale</span><span class="val amber">${passoOttimo} mm</span></div>`;
+    htmlAlt += `<div class="row-data"><span class="lbl">Range consentito produttore</span><span class="val">${passoMin}–${passoMax} mm</span></div>`;
+    htmlAlt += `<div class="row-data"><span class="lbl">N° file tegole per falda</span><span class="val amber">${nFile}</span></div>`;
+    htmlAlt += `<div class="row-data"><span class="lbl">N° listelli battuta per falda</span><span class="val">${nListelliBattuta} (${nFile} file + 1 gronda)</span></div>`;
+    const residuoCl = residuoMm > 60 ? 'red' : residuoMm > 30 ? 'amber' : 'green';
+    htmlAlt += `<div class="row-data"><span class="lbl">Residuo verso il colmo</span><span class="val ${residuoCl}">${residuoMm.toFixed(0)} mm</span></div>`;
+    if (colmoMuro) {
+      htmlAlt += `<div class="row-data"><span class="lbl">Ultimo listello (colmo a muro)</span><span class="val amber">A min ${distMuro + 100} mm dal filo muro — spazio per scossalina Wandanschluss</span></div>`;
+      htmlAlt += `<div class="row-data"><span class="lbl">Distanza tegola → muro</span><span class="val">${distMuro} mm (min 50 mm)</span></div>`;
+    } else {
+      htmlAlt += `<div class="row-data"><span class="lbl">Ultimo listello (sotto colmo)</span><span class="val">A min 80–100 mm dal colmo — per colmo ventilato</span></div>`;
+    }
+    if (residuoMm > 30) {
+      htmlAlt += `<div class="alert alert-warn">⚠️ Residuo ${residuoMm.toFixed(0)} mm: distribuire il residuo sui primi 2–3 listelli partendo dalla gronda, non sull'ultimo. Oppure aumentare la sporgenza di ${Math.round(residuoMm/2)} mm.</div>`;
+    } else {
+      htmlAlt += `<div class="alert alert-ok">✓ Residuo contenuto (${residuoMm.toFixed(0)} mm). Passo uniforme.</div>`;
+    }
+  } else if (tipoSupporto === 'tavolato') {
+    htmlAlt = `<div class="alert alert-info">Supporto a <strong>tavolato continuo</strong>: non si calcola passo a listelli. Tavolato 24 mm, giunti sfalsati, fissaggio chiodi a V o viti 4×50 mm ogni 20 cm.</div>`;
+  } else if (tipoSupporto === 'lamiera_continua') {
+    const largL = largEff > 0 ? largEff : '?';
+    htmlAlt = `<div class="alert alert-info">Manto continuo: il calcolo delle campiture è per pannelli/lastre, non per passo a listelli.<br>
+      Larghezza pannello/lastra utile: <strong>${largL} mm</strong>.<br>
+      N° pannelli per fila: <strong>${largEff > 0 ? Math.ceil((lunghezza*1000)/largEff) : '?'}</strong> (sormonto incluso).<br>
+      Lunghezza pannello = lunghezza falda reale = <strong>${(lunghFaldaReale).toFixed(2)} m</strong> (max per evitare giunti orizzontali).<br>
+      Se falda > 10 m: giunti di dilatazione obbligatori ogni 10 m.</div>`;
+  } else {
+    htmlAlt = `<div class="alert alert-warn">Inserisci passo min/max della tegola per calcolare la spartizione in altezza. Dati disponibili sulla scheda tecnica del produttore.</div>`;
+  }
+  document.getElementById('altezzaBox').innerHTML = htmlAlt;
+
+  // LARGHEZZA
+  let htmlLarg = '';
+  if (largEff > 0 && !['lamiera','ondulata'].includes(tipo)) {
+    htmlLarg += `<div class="row-data"><span class="lbl">Larghezza utile tegola/lastra</span><span class="val">${largEff} mm</span></div>`;
+    htmlLarg += `<div class="row-data"><span class="lbl">N° tegole per fila</span><span class="val amber">${nTegoleFila}</span></div>`;
+    htmlLarg += `<div class="row-data"><span class="lbl">Residuo laterale totale</span><span class="val">${residuoLarg.toFixed(0)} mm → ${(residuoLarg/2).toFixed(0)} mm per lato</span></div>`;
+    if (residuoLarg > 20) {
+      htmlLarg += `<div class="row-data"><span class="lbl">Tegola di bordo (mantovana)</span><span class="val">Larghezza ${(largEff/2 + residuoLarg/2).toFixed(0)} mm — taglio simmetrico</span></div>`;
+      htmlLarg += `<div class="alert alert-ok">✓ Partire dalla mezzeria del colmo, procedere verso le mantovane su entrambi i lati.</div>`;
+    } else {
+      htmlLarg += `<div class="alert alert-ok">✓ Residuo minimo (${residuoLarg.toFixed(0)} mm). Posa quasi perfetta in larghezza.</div>`;
+    }
+    htmlLarg += `<div class="nota">📌 <strong>Mantovana (orlo inclinato):</strong> terminazione con tegola di bordo tagliata + listello orlo 6.5×5 cm. <strong>Frontalino (gronda):</strong> tavola orizzontale in basso lungo la gronda, fascia di chiusura.</div>`;
+  } else if (['lamiera','ondulata'].includes(tipo) && largEff > 0) {
+    const nPannelli = Math.ceil((lunghezza * 1000) / largEff);
+    htmlLarg = `<div class="row-data"><span class="lbl">Larghezza utile pannello/lastra</span><span class="val amber">${largEff} mm</span></div>`;
+    htmlLarg += `<div class="row-data"><span class="lbl">N° pannelli in larghezza</span><span class="val amber">${nPannelli}</span></div>`;
+    htmlLarg += `<div class="row-data"><span class="lbl">Larghezza totale coperta</span><span class="val">${(nPannelli * largEff).toFixed(0)} mm (residuo ${(nPannelli * largEff - lunghezza*1000).toFixed(0)} mm)</span></div>`;
+  } else {
+    htmlLarg = `<div class="alert alert-warn">Inserisci la larghezza di copertura (utile per fila) nei dati manuali qui sopra. Valore disponibile nella scheda tecnica del produttore.</div>`;
+  }
+  document.getElementById('larghezzaBox').innerHTML = htmlLarg;
+
+  // LEGNO
+  let htmlLegno = '';
+  if (tipoSupporto === 'listelli' && nListelliBattuta > 0) {
+    htmlLegno += `<div class="nota" style="margin-bottom:10px">
+      <strong>Listelli battuta (Traglatte/portategola):</strong> sono i listelli <u>orizzontali</u> paralleli alla gronda su cui si agganciamo le tegole. Ce ne vuole UNO PER OGNI FILA di tegole + 1 per la gronda = <strong>${nListelliBattuta} per falda</strong>. Sezione standard 3×5 cm (H×L). Quello di gronda è più alto: 5×5 cm.
+      <br><br>
+      <strong>Controlistelli (Konterlatte):</strong> sono i listelli <u>verticali</u> posizionati sopra la membrana, paralleli alla linea di massima pendenza (cioè perpendicolari alla gronda). Creano l'intercapedine di ventilazione. Sezione 5×5 cm. Interasse consigliato: 60 cm (non oltre 80 cm).
+    </div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">CONTROLISTELLI — sezione</span><span class="val amber">5×5 cm impregnati cl.3 (SIA 265)</span></div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">Controlistelli — interasse</span><span class="val">60 cm (max 80 cm)</span></div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">N° file controlistelli per falda</span><span class="val">${nPuntoni} file × ${nFalde} falde = ${nPuntoni*nFalde} file tot.</span></div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">ml controlistelli totali</span><span class="val amber">${mlControlistelliTot.toFixed(1)} ml</span></div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">N° barre da ${lunghListello} m (controlist.)</span><span class="val amber">${nBarreControlist} barre</span></div>`;
+    htmlLegno += `<div style="height:10px"></div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">LISTELLI BATTUTA — sezione</span><span class="val amber">3×5 cm (H×L) impregnati cl.3</span></div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">Listello gronda</span><span class="val">5×5 cm — 1 per falda (rialzato per dare angolo alla 1a fila)</span></div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">N° listelli battuta per falda</span><span class="val">${nListelliBattuta} (${nFile} file + 1 gronda)</span></div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">ml listelli battuta per falda</span><span class="val">${mlListelliBattutaPerFalda.toFixed(1)} ml</span></div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">ml listelli battuta totali</span><span class="val amber">${mlListelliBattutaTot.toFixed(1)} ml</span></div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">N° barre da ${lunghListello} m (listelli bat.)</span><span class="val amber">${nBarreBattuta} barre</span></div>`;
+    htmlLegno += `<div class="nota" style="margin-top:8px">
+      📌 Viti controlistelli: <strong>6×120 mm</strong> passanti per membrana, su ogni puntone.<br>
+      Viti listelli battuta: <strong>4.5×70 mm</strong> ogni 60 cm.<br>
+      Solo legname impregnato (classe 3 min. in CH per esterno coperto — SIA 265).<br>
+      Intercapedine ventilazione min <strong>50 mm</strong> (SIA 180:2014 — CH).<br>
+      Rete parapasseri alla gronda: obbligatoria.</div>`;
+  } else if (tipoSupporto === 'tavolato') {
+    htmlLegno = `<div class="row-data"><span class="lbl">Tipo supporto</span><span class="val">Tavolato continuo 24 mm, giunti sfalsati</span></div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">Superficie tavolato</span><span class="val amber">${(superficieReale * 1.12).toFixed(1)} m² (+ 12% giunti)</span></div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">Sotto tavolato</span><span class="val">Controlistelli 5×5 cm, interasse 60 cm, per ventilazione</span></div>`;
+  } else if (tipoSupporto === 'lamiera_continua') {
+    htmlLegno = `<div class="row-data"><span class="lbl">Tipo supporto</span><span class="val">Listelli 4×5 cm o 5×5 cm, ogni 30–40 cm (lamiera) / ogni 80–100 cm (ondulata)</span></div>`;
+    htmlLegno += `<div class="row-data"><span class="lbl">Superficie supporto</span><span class="val">${superficieReale.toFixed(1)} m²</span></div>`;
+  }
+  document.getElementById('legnoBox').innerHTML = htmlLegno;
+
+  // FERMANEVE
+  let htmlParan = '';
+  if (fermaneve.file === 0) {
+    htmlParan = `<div class="alert alert-ok">✓ ${fermaneve.note}</div>`;
+  } else {
+    htmlParan += `<div class="paraneve-grid">
+      <div class="pn-card"><div class="pn-num">${fermaneve.file}</div><div class="pn-lbl">File per falda</div></div>
+      <div class="pn-card"><div class="pn-num">${fermaneve.perFile}</div><div class="pn-lbl">Ganci per fila</div></div>
+      <div class="pn-card"><div class="pn-num">${fermaneve.totale * nFalde}</div><div class="pn-lbl">Ganci totali</div></div>
+      <div class="pn-card"><div class="pn-num">${Math.ceil(fermaneve.totale * nFalde * 1.05)}</div><div class="pn-lbl">Da ordinare (+5%)</div></div>
+    </div>`;
+    htmlParan += `<div class="nota" style="margin-top:9px">📌 ${fermaneve.note}<br>Prima fila a 30–50 cm dalla gronda. File aggiuntive: interasse uniforme verso il colmo.<br>Fissaggio meccanico (viti inox) + sigillatura foro (silicone neutro).<br>Richiedere fermaneve SPECIFICO per il modello di tegola scelto.</div>`;
+    if (tipo === 'tegola' || tipo === 'tegola_piana' || tipo === 'coppo') {
+      htmlParan += `<div class="alert alert-warn">⚠️ Il fermaneve deve essere del tipo compatibile col naso della tegola scelta. Richiederlo al produttore della tegola.</div>`;
+    }
+  }
+  document.getElementById('paranBox').innerHTML = htmlParan;
+
+  // SCHEMA
+  let schema = '';
+  if (tipoSupporto === 'listelli' && nFile > 0) {
+    const lungMm = Math.round(lunghFaldaReale * 1000);
+    const show = Math.min(nFile, 8);
+    schema += `  `;
+    if (colmoMuro) schema += `▓▓▓▓ MURO ▓▓▓▓\n  `;
+    else schema += `▲ COLMO\n  `;
+    schema += `┌──────────────────────────────────────────┐\n`;
+    if (colmoMuro) {
+      schema += `  │  ← ${distMuro + 100} mm dal muro → spazio scossalina  │\n`;
+    }
+    if (nFile > show) {
+      schema += `  │  ... (${nFile - show} file/listelli non mostrati)         │\n`;
+    }
+    for (let i = show; i >= 1; i--) {
+      const posFromTop = (nFile - i + 1) * passoOttimo;
+      const line = i === 1 ? '═' : '─';
+      const label = i === 1 ? `← LISTELLO GRONDA 5×5 cm (pos. ${posFromTop} mm)` 
+                            : `← listello ${nFile - i + 2} battuta 3×5 cm (pos. ${posFromTop} mm)`;
+      schema += `  ├${line.repeat(42)}┤  ${i <= 2 || i === show ? label : ''}\n`;
+    }
+    schema += `  ├══════════════════════════════════════════╡  ← LISTELLO GRONDA 5×5 cm\n`;
+    schema += `  └──────────────────────────────────────────┘\n`;
+    schema += `  ↑ GRONDA — sporto tegola ${sporgenza} mm oltre frontalino\n\n`;
+    schema += `  Falda reale: ${lungMm} mm | Passo: ${passoOttimo} mm | File: ${nFile} | Residuo cima: ${residuoMm.toFixed(0)} mm\n`;
+    schema += `  Intercapedine ventilazione (controlistelli): min 50 mm (SIA 180)`;
+  } else {
+    schema = `  Schema listellatura non applicabile per questo tipo di copertura.\n  Vedere schema fornito dal produttore.`;
+  }
+  // sostituisci testo listello gronda con highlight
+  document.getElementById('schemaBox').innerHTML = schema
+    .replace(/(GRONDA|COLMO|MURO)/g, '<span class="hi">$1</span>')
+    .replace(/(listello \d+)/g, '<span class="hi2">$1</span>');
+
+  // NOTE TECNICHE
+  notes.push(`📐 Sup. orizzontale (proiezione): ${(lunghezza*larghezza*nFalde).toFixed(1)} m² | Sup. reale inclinata: ${superficieReale.toFixed(1)} m² | Fattore inclinazione: ${(1/Math.cos(pendRad)).toFixed(3)}`);
+  notes.push(`🌬 Membrana traspirante (SIA 180:2014 art.7.2.3): sormonto orizzontale min <strong>100 mm</strong>, sormonto verticale (giunti laterali) min <strong>150 mm</strong>. Fissaggio ogni 25 cm. Prodotti CH: Tyvek HomeWrap, Majrex 200, Delta-Vent N.`);
+  notes.push(`🔵 Intercapedine ventilazione: min <strong>50 mm</strong> (SIA 180, CH). Nota: EN ISO 13788 europea ammette min 40 mm, ma SIA 180 svizzera richiede 50 mm. Realizzata con controlistelli 5×5 cm.`);
+
+  if (pendGradi < 25) {
+    notes.push(`⚠️ Pendenza < 25° (${pendPerc.toFixed(0)}%): impermeabilizzazione supplementare OBBLIGATORIA. Non è la membrana traspirante — è un secondo strato impermeabile (guaina bituminosa autoadesiva o simile) posato sul tavolato/OSB SOTTO la membrana traspirante. Due strati distinti: 1) impermeabilizzazione supp., 2) membrana traspirante, 3) intercapedine, 4) tegole.`);
+  }
+  if (pendGradi > 55) {
+    notes.push(`⚠️ Pendenza > 55°: fissaggio meccanico di OGNI tegola obbligatorio (vite o zanca per ogni pezzo). Verificare tabella fissaggi del produttore.`);
+  }
+  notes.push(`🔧 Colmo: preferire colmo ventilato in alluminio (evitare malta). Colmo ventilato: min 50 mm apertura per ventilazione (SIA 180).`);
+  if (colmoMuro) {
+    notes.push(`🧱 Colmo a muro: scossalina (Wandanschluss) in rame o zinco, murata min 100 mm nella parete, risvolto sulla falda min 150 mm. Non murare rigidamente: la lamiera deve poter lavorare per dilatazione termica.`);
+  }
+  notes.push(`📋 Normativa CH: SIA 180:2014 (umidità e condensa), SIA 265:2012 (strutture legno), SIA 261:2020 (carichi neve). Marca CE tegole: EN 1304:2013 (laterizio) o EN 490:2011 (cemento).`);
+
+  document.getElementById('noteBox').innerHTML = notes.map(n =>
+    `<div class="nota">${n}</div>`
+  ).join('');
+
+  // Sezione B — popola distinta materiali
+  popolaDistinta({
+    larghezza, lunghezza, nFalde, pendGradi, pendPerc,
+    superficieReale, superficieUnaFalda, lunghFaldaReale,
+    nFile, passoOttimo, nListelliBattuta, mlListelliBattutaTot, nBarreBattuta,
+    mlControlistelliTot, nBarreControlist, nPuntoni,
+    totTegoleTot, pacchi, pzPacco, lunghListello,
+    fermaneve, tipoSupporto, tipo, scarto,
+    marca: document.getElementById('marca').value,
+    modello: document.getElementById('modello').value,
+  });
+  document.getElementById('sezB').style.display = 'block';
+}
+
+// ============================================================
+// SEZIONE A — ISOLAZIONE TERMICA
+// ============================================================
+const ISO_TYPES = {
+  roccia: {label:'Lana di roccia', lambda:0.035},
+  vetro:  {label:'Lana di vetro',  lambda:0.032},
+  pir:    {label:'PIR',            lambda:0.022},
+  xps:    {label:'XPS',            lambda:0.034},
+  eps:    {label:'EPS',            lambda:0.040},
+};
+
+const ISO_CFG_TEMPLATES = {
+  '1': [{tipo:'roccia',sp:100,verso:'lungo',spes:false}],
+  '2': [{tipo:'roccia',sp:100,verso:'lungo',spes:false},{tipo:'roccia',sp:100,verso:'incrociato',spes:false}],
+  '3': [{tipo:'roccia',sp:100,verso:'lungo',spes:true},{tipo:'roccia',sp:100,verso:'incrociato',spes:false}],
+  '4': [{tipo:'roccia',sp:80,verso:'lungo',spes:true},{tipo:'roccia',sp:80,verso:'incrociato',spes:true},{tipo:'pir',sp:60,verso:'lungo',spes:false}],
+  '5': [{tipo:'roccia',sp:100,verso:'lungo',spes:false}],
+};
+
+function caricaIsoConfig() {
+  const cfg = document.getElementById('isoConfig').value;
+  const template = JSON.parse(JSON.stringify(ISO_CFG_TEMPLATES[cfg] || ISO_CFG_TEMPLATES['1']));
+  renderIsoStrati(template, cfg === '5');
+  document.getElementById('isoAddBtn').style.display = cfg === '5' ? 'block' : 'none';
+  calcolaIso();
+}
+
+function renderIsoStrati(strati, canDel) {
+  const container = document.getElementById('isoStrati');
+  container.innerHTML = '';
+  strati.forEach((s, i) => {
+    const tipoOpts = Object.entries(ISO_TYPES).map(([k,v]) =>
+      `<option value="${k}"${s.tipo===k?' selected':''}>${v.label} (λ=${v.lambda})</option>`
+    ).join('');
+    const div = document.createElement('div');
+    div.className = 'iso-strato';
+    div.dataset.spes = s.spes ? '1' : '0';
+    div.innerHTML = `
+      <div class="iso-strato-title">STRATO ${i+1}${s.spes ? ' — con spessoramenti ↓' : ''}</div>
+      ${canDel ? `<button class="iso-strato-del" onclick="isoRimuoviStrato(${i})">✕ rimuovi</button>` : ''}
+      <div class="grid4">
+        <div class="field">
+          <label>Tipo isolante</label>
+          <select data-field="tipo" onchange="isoTipoChange(this)">${tipoOpts}</select>
+        </div>
+        <div class="field">
+          <label>Lambda λ (W/mK)</label>
+          <input type="number" data-field="lambda" value="${ISO_TYPES[s.tipo]?.lambda ?? 0.035}" step="0.001" min="0.010" max="0.500" oninput="calcolaIso()">
+          <span class="unit">modificabile — usare valore scheda tecnica</span>
+        </div>
+        <div class="field">
+          <label>Spessore (mm)</label>
+          <input type="number" data-field="spessore" value="${s.sp}" step="10" min="20" max="400" oninput="calcolaIso()">
+        </div>
+        <div class="field">
+          <label>Pannello L × A (cm)</label>
+          <div style="display:flex;gap:5px">
+            <input type="number" data-field="largPan" value="120" step="10" min="30" max="300" placeholder="120" style="width:48%" oninput="calcolaIso()">
+            <input type="number" data-field="altPan"  value="60"  step="10" min="30" max="300" placeholder="60"  style="width:48%" oninput="calcolaIso()">
+          </div>
+          <span class="unit">larghezza × altezza pannello</span>
+        </div>
+        <div class="field">
+          <label>Verso posa</label>
+          <select data-field="verso" onchange="calcolaIso()">
+            <option value="lungo"${s.verso==='lungo'?' selected':''}>Lungo la falda</option>
+            <option value="incrociato"${s.verso==='incrociato'?' selected':''}>Incrociato (90°)</option>
+          </select>
+        </div>
+        ${s.spes ? `<div class="field" style="grid-column:span 2">
+          <label>Spessoramenti intermedi</label>
+          <div class="iso-spes-info">✓ Travetti 6 cm × spessore strato<br>Interasse = larghezza pannello (≈60 cm)<br>Fissaggio con viti normali ai puntoni</div>
+        </div>` : ''}
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function isoTipoChange(sel) {
+  const t = ISO_TYPES[sel.value];
+  if (t) sel.closest('.iso-strato').querySelector('[data-field="lambda"]').value = t.lambda;
+  calcolaIso();
+}
+
+function isoAggiungiStrato() {
+  const strati = leggiStratiDOM();
+  strati.push({tipo:'roccia', sp:100, verso:'lungo', spes:false});
+  renderIsoStrati(strati, true);
+  calcolaIso();
+}
+
+function isoRimuoviStrato(idx) {
+  let strati = leggiStratiDOM();
+  strati.splice(idx, 1);
+  if (strati.length === 0) strati = [{tipo:'roccia',sp:100,verso:'lungo',spes:false}];
+  renderIsoStrati(strati, true);
+  calcolaIso();
+}
+
+function leggiStratiDOM() {
+  const strati = [];
+  document.querySelectorAll('#isoStrati .iso-strato').forEach(div => {
+    strati.push({
+      tipo:    div.querySelector('[data-field="tipo"]')?.value || 'roccia',
+      lambda:  parseFloat(div.querySelector('[data-field="lambda"]')?.value) || 0.035,
+      sp:      parseFloat(div.querySelector('[data-field="spessore"]')?.value) || 100,
+      largPan: parseFloat(div.querySelector('[data-field="largPan"]')?.value) || 120,
+      altPan:  parseFloat(div.querySelector('[data-field="altPan"]')?.value)  || 60,
+      verso:   div.querySelector('[data-field="verso"]')?.value || 'lungo',
+      spes:    div.dataset.spes === '1',
+    });
+  });
+  return strati;
+}
+
+function calcolaIso() {
+  const strati = leggiStratiDOM();
+  if (strati.length === 0) return;
+
+  const sporto  = document.querySelector('input[name="isoSporto"]:checked')?.value  || 'continuo';
+  const gommini = document.querySelector('input[name="isoGommini"]:checked')?.value || 'singoli';
+
+  // Sporto gronda note
+  const sportoNote = document.getElementById('isoSportoNote');
+  if (sporto === 'travetti') {
+    const ultSp = strati[strati.length-1].sp;
+    sportoNote.innerHTML = `Travetti sporto gronda: altezza = <strong>${ultSp} mm</strong> (= spessore ultimo strato) — ogni 60 cm — fissati con viti normali ai puntoni. Nessun isolante nello sporto.`;
+    sportoNote.style.display = 'block';
+  } else {
+    sportoNote.style.display = 'none';
+  }
+
+  // Calcolo U  —  ISO 6946
+  const Rsi = 0.10, Rse = 0.04, lambdaLegno = 0.13, baseTrav = 0.06;
+  let Rtot = Rsi + Rse;
+  const dettagli = [];
+
+  strati.forEach((s, i) => {
+    const sp_m = s.sp / 1000;
+    if (s.spes) {
+      const interasse = s.largPan / 100;
+      const fLegno = baseTrav / interasse;
+      const fIso   = 1 - fLegno;
+      const RL = sp_m / lambdaLegno;
+      const RI = sp_m / s.lambda;
+      const Rlayer = 1 / (fLegno / RL + fIso / RI);
+      Rtot += Rlayer;
+      dettagli.push(`St.${i+1}: ${s.sp}mm ${ISO_TYPES[s.tipo]?.label} + travetti (${(fLegno*100).toFixed(0)}% legno) → R=${Rlayer.toFixed(3)} m²K/W`);
+    } else {
+      const Rlayer = sp_m / s.lambda;
+      Rtot += Rlayer;
+      dettagli.push(`St.${i+1}: ${s.sp}mm ${ISO_TYPES[s.tipo]?.label} → R=${Rlayer.toFixed(3)} m²K/W`);
+    }
+  });
+
+  const U = 1 / Rtot;
+  const limitCH = 0.20;
+  const ok = U <= limitCH;
+
+  // Spessore necessario per U=0.20 (aggiungendo sul last strato)
+  const lastL = strati[strati.length-1].lambda;
+  const RcurrentNoLast = Rtot - strati[strati.length-1].sp / 1000 / lastL;
+  const RneedLast = (1/limitCH) - RcurrentNoLast;
+  const spNeed = Math.max(0, Math.ceil(RneedLast * lastL * 1000 / 10) * 10);
+
+  const uDiv = document.getElementById('isoUval');
+  const uEl  = document.getElementById('isoUnum');
+  const uDet = document.getElementById('isoUdetail');
+  uDiv.style.display = 'flex';
+  uEl.textContent = U.toFixed(3);
+  uEl.className   = 'uval-num ' + (ok ? 'ok' : 'warn');
+  uDet.innerHTML  = `R tot = ${Rtot.toFixed(3)} m²K/W &nbsp;|&nbsp; Rsi=${Rsi} + Rse=${Rse}<br>`
+    + dettagli.join('<br>') + '<br>'
+    + `<strong>${ok ? '✅' : '❌'} U = ${U.toFixed(3)} W/m²K — limite SIA 380/1:2016 = 0.20 W/m²K</strong>`
+    + (!ok ? `<br>Per raggiungere U ≤ 0.20: aggiungere ~${spNeed} mm all'ultimo strato` : '<br>✓ Conforme SIA 380/1:2016');
+
+  renderIsoStack(strati, gommini, sporto);
+}
+
+function renderIsoStack(strati, gommini, sporto) {
+  const rows = [];
+  rows.push({icon:'🏠', name:'TEGOLE / MANTO', hi:false});
+  rows.push({icon:'══', name:'Listelli battuta', hi:false});
+  rows.push({icon:'││', name:'Controlistelli 5×5 cm (intercapedine ventilaz. min 50 mm)', hi:false});
+  rows.push({icon:gommini==='guaina'?'▬▬':'◦◦', name:gommini==='guaina'?'Guaina continua sotto controlistelli':'Gommini ogni 85 cm sotto i controlistelli', hi:false});
+  rows.push({icon:'⋯⋯', name:'Telo traspirante (sormonto 10 cm orizz. / 15 cm vert.)', hi:false});
+  for (let i = strati.length - 1; i >= 0; i--) {
+    const s = strati[i];
+    rows.push({icon:'▓▓', name:`Strato ${i+1}: ${ISO_TYPES[s.tipo]?.label} — ${s.sp} mm — λ=${s.lambda} W/mK (${s.verso==='incrociato'?'incrociato 90°':'lungo falda'})`, hi:true});
+    if (s.spes) rows.push({icon:'┬┬', name:`└ Spessoramenti: travetti 6 cm × ${s.sp} mm — interasse ${s.largPan} cm`, hi:false});
+  }
+  rows.push({icon:'---', name:'Barriera vapore (es. Majrex 200 — sormonto min 10 cm)', hi:false});
+  rows.push({icon:'////', name:'PUNTONE / STRUTTURA PORTANTE', hi:false});
+
+  const el = document.getElementById('isoStack');
+  el.innerHTML = '<div style="font-size:10px;color:var(--text-dim);font-family:DM Mono,monospace;letter-spacing:.06em;margin-bottom:8px;text-transform:uppercase;">Stratigrafia — dal basso (interno) all\'alto (esterno)</div>'
+    + rows.map(r =>
+        `<div class="iso-stack-item${r.hi?' highlight':''}"><span class="layer-icon">${r.icon}</span><span class="layer-name">${r.name}</span></div>`
+      ).join('');
+}
+
+// ============================================================
+// SEZIONE B — DISTINTA MATERIALI
+// ============================================================
+function popolaDistinta(d) {
+  const strati      = leggiStratiDOM();
+  const gommini     = document.querySelector('input[name="isoGommini"]:checked')?.value || 'singoli';
+  const sporto      = document.querySelector('input[name="isoSporto"]:checked')?.value  || 'continuo';
+  const cfg         = document.getElementById('isoConfig').value;
+  const lunghL      = d.lunghListello || 5;
+  const nFalde      = d.nFalde || 1;
+  const supTot      = (d.superficieUnaFalda || 0) * nFalde;
+  const hasSpes     = strati.some(s => s.spes);
+  const isVitiPass  = !hasSpes && strati.length > 0;
+
+  // --- B1: Tegole e Manto ---
+  const rt = [];
+  if (d.totTegoleTot > 0) {
+    rt.push({desc:`Tegole manto — ${d.marca||''} ${d.modello||''}`.trim()||'Tegole manto',
+      qty:d.pacchi, unit:'pacchi',
+      note:`${d.pzPacco} pz/pacco — ${d.totTegoleTot} pz tot. (scarto ${d.scarto||7}% incl.)`});
+  }
+  if (d.mlControlistelliTot > 0) {
+    rt.push({desc:'Controlistelli 5×5 cm impregnati cl.3',
+      qty:`${d.mlControlistelliTot.toFixed(0)} ml / ${d.nBarreControlist} barre`,
+      unit:`barre ${lunghL}m`, note:`Interasse 60 cm — ${d.nPuntoni||'—'} file per falda`});
+  }
+  if (d.mlListelliBattutaTot > 0) {
+    rt.push({desc:'Listelli battuta 3×5 cm impregnati cl.3',
+      qty:`${d.mlListelliBattutaTot.toFixed(0)} ml / ${d.nBarreBattuta} barre`,
+      unit:`barre ${lunghL}m`, note:`1 per ogni fila tegole + 1 gronda`});
+  }
+  rt.push({desc:'Listello gronda 5×5 cm',
+    qty:`${((d.lunghezza||0)*nFalde).toFixed(0)} ml`, unit:'ml', note:'1 per ogni ml di gronda (rialzato)'});
+  const mqMembr = ((d.superficieReale||0) * 1.10).toFixed(0);
+  rt.push({desc:'Membrana traspirante',
+    qty:mqMembr, unit:'m²', note:'Sormonto 10 cm orizz. / 15 cm vert. — es. Tyvek HomeWrap, Delta-Vent N'});
+  if (d.mlControlistelliTot > 0) {
+    rt.push({desc:'Viti controlistelli 6×120 mm',
+      qty:Math.ceil(d.mlControlistelliTot/0.60*1.05), unit:'pz', note:'1 ogni 60 cm per controlistello (+5%)'});
+  }
+  if (d.mlListelliBattutaTot > 0) {
+    rt.push({desc:'Viti listelli battuta 4.5×70 mm',
+      qty:Math.ceil(d.mlListelliBattutaTot/0.60*1.05), unit:'pz', note:'1 ogni 60 cm (+5%)'});
+  }
+  rt.push({desc:'Rete parapasseri gronda',
+    qty:`${((d.lunghezza||0)*nFalde).toFixed(0)} ml`, unit:'ml', note:'1 per ogni ml di gronda'});
+  rt.push({desc:'Scossalina di gronda (Traufblech)',
+    qty:`${((d.lunghezza||0)*nFalde).toFixed(0)} ml`, unit:'ml', note:'Rame o zinco — 1 per ml di gronda'});
+  if (d.fermaneve && d.fermaneve.totale > 0) {
+    rt.push({desc:'Ganci fermaneve / paraneve',
+      qty:Math.ceil(d.fermaneve.totale*nFalde*1.05), unit:'pz',
+      note:`${d.fermaneve.file} file per falda — ${d.fermaneve.perFile} ganci/fila (+5%)`});
+  }
+  document.getElementById('distinBodyTegole').innerHTML = rt.map(r =>
+    `<tr><td>${r.desc}</td><td class="qty">${r.qty}</td><td class="unit">${r.unit}</td><td class="note-col">${r.note}</td></tr>`
+  ).join('');
+
+  // --- Scorta cliente ---
+  const sup = supTot;
+  const sp = sup < 60 ? 2 : sup < 200 ? 3 : 4;
+  document.getElementById('distinBodyScorta').innerHTML = `
+    <tr><td>Pacchi tegola scorta</td><td class="qty">${sp}</td><td class="unit">pacchi</td><td class="note-col">Sup. ${sup.toFixed(0)} m² — riserva per rotture future (non per posa)</td></tr>
+    <tr><td>Copponi di colmo scorta</td><td class="qty">${sp}</td><td class="unit">pz</td><td class="note-col">Stessa logica superficie</td></tr>
+    <tr><td>Tegole frontone scorta (per lato)</td><td class="qty">${Math.max(2,sp-1)}</td><td class="unit">pz</td><td class="note-col">Per eventuali rotture bordo</td></tr>`;
+
+  // --- B2: Isolazione ---
+  const ri = [];
+  const supRealeTot = d.superficieReale || 0;
+  ri.push({desc:'Barriera vapore',
+    qty:Math.ceil(supRealeTot*nFalde*1.10), unit:'m²',
+    note:'Sormonto min 10 cm — es. Majrex 200 o simile'});
+
+  strati.forEach((s, i) => {
+    const mq_netto = supRealeTot * nFalde;
+    const nPanLarg = Math.ceil(((d.lunghezza||0)*100) / s.largPan) || 1;
+    const nPanAlt  = Math.ceil(((d.lunghFaldaReale||0)*100) / s.altPan) || 1;
+    const nPanTot  = Math.ceil(nPanLarg * nPanAlt * nFalde * 1.03);
+    ri.push({desc:`Isolante strato ${i+1} — ${ISO_TYPES[s.tipo]?.label||s.tipo}`,
+      qty:nPanTot, unit:'pannelli',
+      note:`${s.largPan}×${s.altPan} cm — ${s.sp} mm — λ=${s.lambda} — ${mq_netto.toFixed(0)} m² netti (+3% scarto)`});
+    if (s.spes) {
+      const interasse_m = s.largPan / 100;
+      const nTravFila = Math.ceil((d.lunghezza||0) / interasse_m) + 1;
+      const mlTrav    = nTravFila * (d.lunghFaldaReale||0) * nFalde;
+      ri.push({desc:`Travetti spessoramento 6×${s.sp} cm`,
+        qty:`${mlTrav.toFixed(0)} ml / ${Math.ceil(mlTrav/lunghL)} pz`,
+        unit:`pz ${lunghL}m`,
+        note:`Base 6 cm × H ${s.sp} mm — interasse ${s.largPan} cm`});
+    }
+  });
+
+  if (isVitiPass && strati.length > 0) {
+    const isoTotMm  = strati.reduce((a,s) => a+s.sp, 0);
+    const viteLMin  = isoTotMm + 50;
+    const viteComm  = Math.ceil(viteLMin/10)*10;
+    const nCtrl     = (d.nPuntoni||0) * nFalde;
+    const nVitiCtrl = Math.ceil((d.lunghFaldaReale||0) / 0.60);
+    const nViti     = Math.ceil(nCtrl * nVitiCtrl * 1.05);
+    ri.push({desc:'Viti passanti 35° — Rothoblaas VGZ o simili',
+      qty:nViti, unit:'pz',
+      note:`L.min ${viteLMin} mm → commerciale ${viteComm} mm — passo 60 cm (+5%). Verificare modello con fornitore.`});
+  } else if (hasSpes) {
+    const nCtrl  = (d.nPuntoni||0) * nFalde;
+    const nVitiN = Math.ceil(nCtrl * Math.ceil((d.lunghFaldaReale||0)/0.60) * 1.05);
+    ri.push({desc:'Viti normali controlistelli su spessoramenti',
+      qty:nVitiN, unit:'pz', note:'Passo 60 cm — fissaggio ai travetti (+5%)'});
+  }
+
+  if (gommini === 'guaina') {
+    ri.push({desc:'Guaina continua sotto controlistelli',
+      qty:`${(d.mlControlistelliTot||0).toFixed(0)} ml`, unit:'ml',
+      note:'Alternativa ai gommini — FV, zone ad alto rischio'});
+  } else if (d.nPuntoni) {
+    const nGomm = Math.ceil((d.lunghFaldaReale||0)/0.85) * (d.nPuntoni||0) * nFalde;
+    ri.push({desc:'Gommini sotto controlistelli',
+      qty:nGomm, unit:'pz', note:'1 ogni 85 cm per controlistello'});
+  }
+
+  if (sporto === 'travetti' && strati.length > 0) {
+    const ultSp = strati[strati.length-1].sp;
+    const mlSp  = (d.lunghezza||0) * nFalde;
+    ri.push({desc:`Travetti sporto gronda — ${ultSp} mm altezza`,
+      qty:`${mlSp.toFixed(0)} ml / ${Math.ceil(mlSp/lunghL)} pz`,
+      unit:`pz ${lunghL}m`,
+      note:`Alt. ${ultSp} mm — interasse 60 cm — viti normali ai puntoni`});
+  }
+
+  document.getElementById('distinBodyIso').innerHTML = ri.map(r =>
+    `<tr><td>${r.desc}</td><td class="qty">${r.qty}</td><td class="unit">${r.unit}</td><td class="note-col">${r.note}</td></tr>`
+  ).join('');
+}
+
+function esportaCSV() {
+  let csv = '﻿SEZIONE;DESCRIZIONE;QUANTITA;UNITA;NOTE\n';
+  const addRows = (sez, tbodyId) => {
+    document.querySelectorAll('#'+tbodyId+' tr').forEach(tr => {
+      const c = [...tr.querySelectorAll('td')].map(td => '"'+td.textContent.trim().replace(/"/g,'""')+'"');
+      if (c.length >= 3) csv += `"${sez}";${c[0]};${c[1]};${c[2]};${c[3]||'""'}\n`;
+    });
+  };
+  addRows('TEGOLE E MANTO','distinBodyTegole');
+  addRows('SCORTA CLIENTE','distinBodyScorta');
+  addRows('ISOLAZIONE','distinBodyIso');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'distinta_copertura.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function resetForm() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('sezB').style.display = 'none';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+</script>
+</body>
+</html>
