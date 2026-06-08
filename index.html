@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Spartizione Copertura v3 — CT Carpenteria Ticinese</title>
+<title>Spartizione Copertura v4 — CT Carpenteria Ticinese</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
 :root {
@@ -41,14 +41,14 @@ header .badge{margin-left:auto;background:var(--amber-glow);border:1px solid var
 @media(max-width:380px){.grid2,.grid3,.grid4{grid-template-columns:1fr;}}
 
 .field{display:flex;flex-direction:column;gap:4px;}
-label{font-size:10px;font-weight:600;color:var(--text-dim);letter-spacing:.08em;
+label{font-size:10px;font-weight:600;color:#AAAAAA;letter-spacing:.08em;
   text-transform:uppercase;font-family:'DM Mono',monospace;}
 input,select{background:var(--surface2);border:1px solid var(--border);color:var(--text);
   padding:9px 11px;border-radius:6px;font-size:14px;font-family:'DM Mono',monospace;
   font-weight:500;width:100%;outline:none;transition:border-color .15s;-webkit-appearance:none;}
 input:focus,select:focus{border-color:var(--amber);background:#1e1e1b;}
 select option{background:var(--surface2);color:var(--text);}
-.unit{font-size:10px;color:var(--amber-dim);font-family:'DM Mono',monospace;margin-top:1px;}
+.unit{font-size:10px;color:#B8A080;font-family:'DM Mono',monospace;margin-top:1px;}
 
 /* PENDENZA DOPPIA */
 .pendenza-group{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:end;}
@@ -62,12 +62,14 @@ select option{background:var(--surface2);color:var(--text);}
 .type-btn .icon{font-size:20px;display:block;margin-bottom:3px;}
 .type-btn .name{font-size:10px;font-weight:700;color:var(--text);line-height:1.2;}
 .type-btn .sub{font-size:9px;color:var(--text-dim);margin-top:1px;font-family:'DM Mono',monospace;}
-.type-btn.active{border-color:var(--amber);background:var(--amber-glow);}
+.type-btn.active{border-color:var(--amber);background:var(--amber-glow);position:relative;}
+.type-btn.active::after{content:'✓';position:absolute;top:5px;right:7px;font-size:10px;
+  color:var(--amber);font-weight:800;font-family:'DM Mono',monospace;}
 .type-btn.active .name{color:var(--amber);}
 
 .brand-info{background:var(--surface2);border:1px solid var(--border);border-radius:6px;
   padding:9px 12px;margin-top:9px;font-size:11px;font-family:'DM Mono',monospace;
-  color:var(--text-dim);line-height:1.7;display:none;}
+  color:#BBBBBB;line-height:1.7;display:none;}
 .brand-info.visible{display:block;}
 .brand-info strong{color:var(--amber);}
 
@@ -151,7 +153,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--amber);cursor:poi
 
 .nota{background:var(--surface2);border-left:3px solid var(--amber);padding:9px 13px;
   border-radius:0 6px 6px 0;font-size:10px;font-family:'DM Mono',monospace;
-  color:var(--text-dim);line-height:1.7;margin-top:7px;}
+  color:#C0B090;line-height:1.7;margin-top:7px;}
 .nota strong{color:var(--text);}
 
 @media print{
@@ -240,7 +242,7 @@ input.field-error:focus{border-color:var(--red)!important;}
     <div class="logo">CT Carpenteria Ticinese — Bellinzona</div>
     <h1>Spartizione Manto di Copertura</h1>
   </div>
-  <span class="badge">v3.0 — 2026</span>
+  <span class="badge">v4.0 — 2026</span>
 </header>
 
 <div class="container">
@@ -252,14 +254,26 @@ input.field-error:focus{border-color:var(--red)!important;}
     <div class="grid3">
       <div class="field">
         <label>Larghezza falda (X)</label>
-        <input type="number" id="larghezza" placeholder="8.50" step="0.01" min="0" oninput="aggiornaMisure()">
-        <span class="unit" id="unitLarghezza">metri — proiezione orizzontale, da gronda a gronda</span>
+        <div style="display:flex;gap:5px">
+          <input type="number" id="larghezza" placeholder="850" step="1" min="0" oninput="aggiornaMisure()" style="flex:1">
+          <select id="unitLarghezzaSelect" onchange="aggiornaMisure()" style="width:58px;flex:none;font-size:12px;padding:9px 4px">
+            <option value="cm" selected>cm</option>
+            <option value="m">m</option>
+          </select>
+        </div>
+        <span class="unit" id="unitLarghezza">cm — proiezione orizzontale, da gronda a gronda</span>
         <span class="conv-note" id="convLarghezza"></span>
       </div>
       <div class="field">
         <label>Lunghezza colmo (Y)</label>
-        <input type="number" id="lunghezza" placeholder="12.00" step="0.01" min="0" oninput="aggiornaMisure()">
-        <span class="unit">metri — lunghezza del colmo / del tetto</span>
+        <div style="display:flex;gap:5px">
+          <input type="number" id="lunghezza" placeholder="1200" step="1" min="0" oninput="aggiornaMisure()" style="flex:1">
+          <select id="unitLunghezzaSelect" onchange="aggiornaMisure()" style="width:58px;flex:none;font-size:12px;padding:9px 4px">
+            <option value="cm" selected>cm</option>
+            <option value="m">m</option>
+          </select>
+        </div>
+        <span class="unit">cm — lunghezza del colmo / del tetto</span>
         <span class="conv-note" id="convLunghezza"></span>
       </div>
       <div class="field">
@@ -291,16 +305,15 @@ input.field-error:focus{border-color:var(--red)!important;}
       <label style="display:block;margin-bottom:6px;">Pendenza</label>
       <div class="pendenza-group">
         <div class="field">
-          <label>Percentuale (%) — inserire qui</label>
+          <label>Percentuale (%)</label>
           <input type="number" id="pendPerc" placeholder="58" step="0.5" min="0.5" max="500" oninput="syncPend('perc')">
-          <span class="unit">es: 58% = 30° — inserire SEMPRE la pendenza in %</span>
+          <span class="unit">es: 58% = 30° — inseribile anche dai gradi →</span>
         </div>
-        <div class="pendenza-sep" style="font-size:14px;color:var(--text-dim);">→</div>
+        <div class="pendenza-sep" style="font-size:14px;color:var(--amber);">⇄</div>
         <div class="field">
-          <label>Gradi (°) — automatico</label>
-          <input type="number" id="pendGradi" placeholder="—" readonly
-            style="opacity:.6;cursor:default;background:var(--surface);">
-          <span class="unit">calcolato automaticamente dal valore %</span>
+          <label>Gradi (°)</label>
+          <input type="number" id="pendGradi" placeholder="30" step="0.5" min="0.3" max="80" oninput="syncPend('gradi')">
+          <span class="unit">inseribile qui — aggiorna % automaticamente</span>
         </div>
       </div>
     </div>
@@ -311,8 +324,14 @@ input.field-error:focus{border-color:var(--red)!important;}
       <div class="grid3">
         <div class="field">
           <label>Sporgenza tegola in gronda</label>
-          <input type="number" id="sporgenza" placeholder="55" step="5" min="20" max="100" value="55">
-          <span class="unit">mm — quanto sporge la tegola oltre il frontalino (consigliato: 50–70 mm)</span>
+          <div style="display:flex;gap:5px">
+            <input type="number" id="sporgenza" placeholder="55" step="5" min="5" max="200" value="55" style="flex:1">
+            <select id="unitSporgenzaSelect" style="width:58px;flex:none;font-size:12px;padding:9px 4px">
+              <option value="mm" selected>mm</option>
+              <option value="cm">cm</option>
+            </select>
+          </div>
+          <span class="unit">quanto sporge la tegola oltre il frontalino (consigliato: 50–70 mm)</span>
         </div>
         <div class="field">
           <label>Diametro canale gronda</label>
@@ -348,9 +367,16 @@ input.field-error:focus{border-color:var(--red)!important;}
           Scossalina (Wandanschluss): lamiera rame/zinco murata min 100 mm nella parete, risvolto sulla falda min 150 mm.<br>
           Il calcolo della posizione dell'ultimo listello tiene conto di questo automaticamente.
         </div>
-        <div class="field" style="margin-top:8px; max-width:200px;">
-          <label>Distanza tegola-muro (mm)</label>
-          <input type="number" id="distMuro" placeholder="80" value="80" min="50" max="200">
+        <div class="field" style="margin-top:8px; max-width:220px;">
+          <label>Distanza tegola-muro</label>
+          <div style="display:flex;gap:5px">
+            <input type="number" id="distMuro" placeholder="8" value="8" min="3" max="25" style="flex:1">
+            <select id="unitDistMuroSelect" style="width:58px;flex:none;font-size:12px;padding:9px 4px">
+              <option value="cm" selected>cm</option>
+              <option value="mm">mm</option>
+            </select>
+          </div>
+          <span class="unit">distanza minima consigliata 5–8 cm</span>
         </div>
       </div>
     </div>
@@ -414,15 +440,48 @@ input.field-error:focus{border-color:var(--red)!important;}
       <button class="btn-add-strato" onclick="isoAggiungiStrato()">+ Aggiungi strato isolante</button>
     </div>
 
+    <div style="margin-top:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+      <div style="font-size:10px;font-weight:700;color:var(--text-dim);font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Isolanti personalizzati (salvati localmente)</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px">
+        <div class="field" style="min-width:110px;flex:1">
+          <label>Chiave (senza spazi)</label>
+          <input type="text" id="isoCustomKey" placeholder="es: aerogel" style="font-size:12px">
+        </div>
+        <div class="field" style="min-width:160px;flex:2">
+          <label>Nome isolante</label>
+          <input type="text" id="isoCustomLabel" placeholder="es: Aerogel pannello" style="font-size:12px">
+        </div>
+        <div class="field" style="min-width:100px;flex:1">
+          <label>Lambda λ (W/mK)</label>
+          <input type="number" id="isoCustomLambda" placeholder="0.015" step="0.001" min="0.010" max="0.500" style="font-size:12px">
+        </div>
+        <button class="btn-save-manual" onclick="salvaIsoCustom()" style="margin-top:0;white-space:nowrap">+ Aggiungi</button>
+      </div>
+      <div id="isoCustomList" class="saved-profiles"></div>
+    </div>
+
     <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
       <label style="font-size:10px;font-weight:600;color:var(--text-dim);font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:6px;">Sporto Gronda</label>
       <div class="iso-opt-row">
         <label><input type="radio" name="isoSporto" value="continuo" checked onchange="calcolaIso()">
-          <strong>Isola lo sporto</strong> (cappotto continuo — consigliato)</label>
+          <strong>Isola lo sporto</strong> (isolante continuo nello sporto — consigliato)</label>
         <label><input type="radio" name="isoSporto" value="travetti" onchange="calcolaIso()">
           <strong>Non isola lo sporto</strong> (travetti di spessoramento)</label>
       </div>
       <div id="isoSportoNote" class="alert alert-info" style="margin-top:7px;display:none;"></div>
+      <div style="margin-top:9px">
+        <div class="field" style="max-width:220px">
+          <label>Lunghezza sporto gronda</label>
+          <div style="display:flex;gap:5px">
+            <input type="number" id="lunghSporto" placeholder="60" value="60" step="5" min="10" max="300" oninput="calcolaIso()" style="flex:1">
+            <select id="unitLunghSportoSelect" onchange="calcolaIso()" style="width:58px;flex:none;font-size:12px;padding:9px 4px">
+              <option value="cm" selected>cm</option>
+              <option value="mm">mm</option>
+            </select>
+          </div>
+          <span class="unit">sporto del tetto oltre il muro / frontalino</span>
+        </div>
+      </div>
     </div>
 
     <div style="margin-top:11px;padding-top:11px;border-top:1px solid var(--border);">
@@ -522,16 +581,34 @@ input.field-error:focus{border-color:var(--red)!important;}
       </div>
       <div class="grid4">
         <div class="field">
-          <label>Passo listello min (mm)</label>
-          <input type="number" id="passoMin" placeholder="315">
+          <label>Passo listello min</label>
+          <div style="display:flex;gap:5px">
+            <input type="number" id="passoMin" placeholder="315" style="flex:1">
+            <select id="unitPassoMinSelect" style="width:52px;flex:none;font-size:11px;padding:9px 3px">
+              <option value="mm" selected>mm</option>
+              <option value="cm">cm</option>
+            </select>
+          </div>
         </div>
         <div class="field">
-          <label>Passo listello max (mm)</label>
-          <input type="number" id="passoMax" placeholder="345">
+          <label>Passo listello max</label>
+          <div style="display:flex;gap:5px">
+            <input type="number" id="passoMax" placeholder="345" style="flex:1">
+            <select id="unitPassoMaxSelect" style="width:52px;flex:none;font-size:11px;padding:9px 3px">
+              <option value="mm" selected>mm</option>
+              <option value="cm">cm</option>
+            </select>
+          </div>
         </div>
         <div class="field">
-          <label>Larghezza copertura (mm)</label>
-          <input type="number" id="largCop" placeholder="300">
+          <label>Larghezza copertura</label>
+          <div style="display:flex;gap:5px">
+            <input type="number" id="largCop" placeholder="300" style="flex:1">
+            <select id="unitLargCopSelect" style="width:52px;flex:none;font-size:11px;padding:9px 3px">
+              <option value="mm" selected>mm</option>
+              <option value="cm">cm</option>
+            </select>
+          </div>
           <span class="unit">larghezza utile per fila</span>
         </div>
         <div class="field">
@@ -554,8 +631,15 @@ input.field-error:focus{border-color:var(--red)!important;}
           </select>
         </div>
         <div class="field">
-          <label>Larghezza lastra (mm)</label>
-          <input type="number" id="largLastra" placeholder="600">
+          <label>Larghezza lastra</label>
+          <div style="display:flex;gap:5px">
+            <input type="number" id="largLastra" placeholder="600" style="flex:1">
+            <select id="unitLargLastraSelect" style="width:52px;flex:none;font-size:11px;padding:9px 3px">
+              <option value="mm" selected>mm</option>
+              <option value="cm">cm</option>
+              <option value="m">m</option>
+            </select>
+          </div>
           <span class="unit">solo per lamiera/ondulata</span>
         </div>
       </div>
@@ -680,12 +764,20 @@ input.field-error:focus{border-color:var(--red)!important;}
 // CONVERSIONE PENDENZA  (% → gradi, unica direzione)
 // ============================================================
 function syncPend(src) {
-  if (src === 'gradi') return; // gradi è ora readonly — ignora
-  const p = parseFloat(document.getElementById('pendPerc').value);
-  if (!isNaN(p) && p > 0) {
-    document.getElementById('pendGradi').value = (Math.atan(p / 100) * 180 / Math.PI).toFixed(1);
-  } else {
-    document.getElementById('pendGradi').value = '';
+  if (src === 'perc') {
+    const p = parseFloat(document.getElementById('pendPerc').value);
+    if (!isNaN(p) && p > 0) {
+      document.getElementById('pendGradi').value = (Math.atan(p / 100) * 180 / Math.PI).toFixed(1);
+    } else {
+      document.getElementById('pendGradi').value = '';
+    }
+  } else if (src === 'gradi') {
+    const g = parseFloat(document.getElementById('pendGradi').value);
+    if (!isNaN(g) && g > 0) {
+      document.getElementById('pendPerc').value = (Math.tan(g * Math.PI / 180) * 100).toFixed(1);
+    } else {
+      document.getElementById('pendPerc').value = '';
+    }
   }
   checkPendenzaMin();
   aggiornaMisure();
@@ -727,20 +819,55 @@ function clearPendenzaAlert() {
 // ============================================================
 // CONVERSIONE PIANO / SUL TETTO  (v3)
 // ============================================================
+function leggiMm(inputId, selectId, def) {
+  const v = parseFloat(document.getElementById(inputId)?.value) || 0;
+  const u = document.getElementById(selectId)?.value || 'mm';
+  if (u === 'cm') return v * 10;
+  if (u === 'm')  return v * 1000;
+  return v || (def || 0);
+}
+function impostaMm(inputId, selectId, valueMm) {
+  const sel = document.getElementById(selectId);
+  if (sel) sel.value = 'mm';
+  const el = document.getElementById(inputId);
+  if (el) el.value = valueMm;
+}
+
+function getLarghezzaM() {
+  const v = parseFloat(document.getElementById('larghezza').value) || 0;
+  const u = document.getElementById('unitLarghezzaSelect')?.value || 'cm';
+  return u === 'cm' ? v / 100 : v;
+}
+function getLunghezzaM() {
+  const v = parseFloat(document.getElementById('lunghezza').value) || 0;
+  const u = document.getElementById('unitLunghezzaSelect')?.value || 'cm';
+  return u === 'cm' ? v / 100 : v;
+}
+function getSporgenzaMm() {
+  const v = parseFloat(document.getElementById('sporgenza').value) || 55;
+  const u = document.getElementById('unitSporgenzaSelect')?.value || 'mm';
+  return u === 'cm' ? v * 10 : v;
+}
+function getLunghSportoMm() {
+  const v = parseFloat(document.getElementById('lunghSporto')?.value) || 60;
+  const u = document.getElementById('unitLunghSportoSelect')?.value || 'cm';
+  return u === 'cm' ? v * 10 : v;
+}
+
 function aggiornaMisure() {
   const mode    = document.querySelector('input[name="modoMisura"]:checked')?.value || 'piano';
-  const larghVal = parseFloat(document.getElementById('larghezza').value) || 0;
+  const larghVal = getLarghezzaM();
   const percVal  = parseFloat(document.getElementById('pendPerc').value)  || 0;
+  const unitSelX = document.getElementById('unitLarghezzaSelect')?.value || 'cm';
   const convL    = document.getElementById('convLarghezza');
   const convLu   = document.getElementById('convLunghezza');
   const unitL    = document.getElementById('unitLarghezza');
 
-  // Aggiorna colore label radio
   document.getElementById('lbl_piano').style.color    = mode === 'piano'    ? 'var(--amber)' : '';
   document.getElementById('lbl_pendenza').style.color = mode === 'pendenza' ? 'var(--amber)' : '';
 
   if (mode === 'pendenza') {
-    unitL.textContent = 'metri — misura SUL TETTO (falda inclinata)';
+    unitL.textContent = unitSelX === 'cm' ? 'cm — misura SUL TETTO (falda inclinata)' : 'm — misura SUL TETTO (falda inclinata)';
     if (percVal > 0 && larghVal > 0) {
       const cosA  = Math.cos(Math.atan(percVal / 100));
       const piano = larghVal * cosA;
@@ -758,7 +885,7 @@ function aggiornaMisure() {
     convLu.className     = 'conv-note';
     convLu.style.display = 'block';
   } else {
-    unitL.textContent    = 'metri — proiezione orizzontale, da gronda a gronda';
+    unitL.textContent    = unitSelX === 'cm' ? 'cm — proiezione orizzontale, da gronda a gronda' : 'm — proiezione orizzontale, da gronda a gronda';
     convL.style.display  = 'none';
     convLu.style.display = 'none';
   }
@@ -1025,8 +1152,9 @@ window.onload = function() {
   aggiornaPaese();
   document.getElementById('zonaneve').addEventListener('change', aggiornaNotaZona);
   caricaProfiliSalvati();
-  aggiornaMisure(); // v3: init stato radio misura
-  caricaIsoConfig(); // v3: init sezione A isolazione
+  aggiornaMisure();
+  caricaIsoConfig();
+  renderIsoCustomList();
 };
 
 function aggiornaTipo() {
@@ -1069,9 +1197,9 @@ function aggiornaModello() {
   if (!tipo || !marca || !modello) { info.className = 'brand-info'; return; }
   const d = PRODOTTI[tipo]?.[marca]?.[modello];
   if (!d) return;
-  if (d.passoMin) document.getElementById('passoMin').value = d.passoMin;
-  if (d.passoMax) document.getElementById('passoMax').value = d.passoMax;
-  if (d.largCop)  document.getElementById('largCop').value  = d.largCop;
+  if (d.passoMin) impostaMm('passoMin', 'unitPassoMinSelect', d.passoMin);
+  if (d.passoMax) impostaMm('passoMax', 'unitPassoMaxSelect', d.passoMax);
+  if (d.largCop)  impostaMm('largCop',  'unitLargCopSelect',  d.largCop);
   if (d.pendMin)  document.getElementById('pendMin').value  = d.pendMin;
   if (d.pzMq)    document.getElementById('pzMq').value    = d.pzMq;
   if (d.pzPacco) document.getElementById('pzPacco').value = d.pzPacco;
@@ -1192,35 +1320,35 @@ function calcola() {
   const pendGradi = pendPerc > 0 ? Math.atan(pendPerc / 100) * 180 / Math.PI : pendGradiRaw;
 
   // --- MISURA SUL TETTO: conversione larghezza se necessario ---
-  let larghezzaInput = parseFloat(document.getElementById('larghezza').value);
+  let larghezzaInput = getLarghezzaM();
   const modoMisura   = document.querySelector('input[name="modoMisura"]:checked')?.value || 'piano';
   let larghezza = larghezzaInput;
   if (modoMisura === 'pendenza' && pendPerc > 0 && !isNaN(larghezzaInput)) {
     larghezza = larghezzaInput * Math.cos(Math.atan(pendPerc / 100));
   }
 
-  const lunghezza = parseFloat(document.getElementById('lunghezza').value);
+  const lunghezza = getLunghezzaM();
   const nFalde    = parseInt(document.getElementById('nFalde').value);
-  const sporgenza = parseInt(document.getElementById('sporgenza').value) || 55;
+  const sporgenza = getSporgenzaMm();
   const scarto    = parseFloat(document.getElementById('scarto').value) || 7;
   const zona      = document.getElementById('zonaneve').value;
   const paese     = document.getElementById('paese').value;
   const tipo      = document.querySelector('input[name=tipo]:checked')?.value || 'tegola';
   const colmoMuro = document.getElementById('colmoMuro').checked;
-  const distMuro  = parseInt(document.getElementById('distMuro').value) || 80;
+  const distMuro  = leggiMm('distMuro', 'unitDistMuroSelect', 80);
   const lunghListello = parseFloat(document.getElementById('lunghListello').value) || 5;
 
   if (!larghezza || !lunghezza || !pendGradi) {
     alert('Inserisci larghezza, lunghezza e pendenza (%)!'); return;
   }
 
-  const passoMin    = parseFloat(document.getElementById('passoMin').value) || 0;
-  const passoMax    = parseFloat(document.getElementById('passoMax').value) || 0;
-  const largCop     = parseFloat(document.getElementById('largCop').value)  || 0;
+  const passoMin    = leggiMm('passoMin', 'unitPassoMinSelect', 0);
+  const passoMax    = leggiMm('passoMax', 'unitPassoMaxSelect', 0);
+  const largCop     = leggiMm('largCop',  'unitLargCopSelect',  0);
   const pendMinProd = parseFloat(document.getElementById('pendMin').value)  || 0;
   const pzMq        = parseFloat(document.getElementById('pzMq').value)     || 0;
   const pzPacco     = parseFloat(document.getElementById('pzPacco').value)  || 10;
-  const largLastra  = parseFloat(document.getElementById('largLastra').value) || largCop;
+  const largLastra  = leggiMm('largLastra', 'unitLargLastraSelect', largCop) || largCop;
 
   // --- BLOCCO PENDENZA MINIMA PRODUTTORE (v3) ---
   if (pendMinProd > 0 && pendGradi < pendMinProd) {
@@ -1524,13 +1652,67 @@ function calcola() {
 // ============================================================
 // SEZIONE A — ISOLAZIONE TERMICA
 // ============================================================
-const ISO_TYPES = {
-  roccia: {label:'Lana di roccia', lambda:0.035},
-  vetro:  {label:'Lana di vetro',  lambda:0.032},
-  pir:    {label:'PIR',            lambda:0.022},
-  xps:    {label:'XPS',            lambda:0.034},
-  eps:    {label:'EPS',            lambda:0.040},
+const ISO_TYPES_DEFAULT = {
+  roccia:       {label:'Lana di roccia',          lambda:0.035},
+  vetro:        {label:'Lana di vetro',           lambda:0.032},
+  pir:          {label:'PIR',                     lambda:0.022},
+  xps:          {label:'XPS',                     lambda:0.034},
+  eps:          {label:'EPS',                     lambda:0.040},
+  fibra_pan:    {label:'Fibra di legno pannello', lambda:0.038},
+  fibra_morb:   {label:'Fibra di legno morbida',  lambda:0.040},
+  osb:          {label:'OSB',                     lambda:0.130},
+  sughero:      {label:'Sughero',                 lambda:0.040},
+  canapa:       {label:'Canapa',                  lambda:0.040},
+  calce_canapa: {label:'Calce-canapa',            lambda:0.060},
 };
+
+function caricaIsoTypesCustom() {
+  const custom = JSON.parse(localStorage.getItem('ct_iso_custom') || '[]');
+  const merged = Object.assign({}, ISO_TYPES_DEFAULT);
+  custom.forEach(c => { merged['_c_' + c.key] = {label: c.label, lambda: c.lambda, custom: true}; });
+  return merged;
+}
+let ISO_TYPES = caricaIsoTypesCustom();
+
+function salvaIsoCustom() {
+  const key   = (document.getElementById('isoCustomKey').value   || '').trim().replace(/\s+/g,'_').toLowerCase();
+  const label = (document.getElementById('isoCustomLabel').value || '').trim();
+  const lambda= parseFloat(document.getElementById('isoCustomLambda').value);
+  if (!key || !label || isNaN(lambda) || lambda <= 0) {
+    alert('Compilare tutti i campi (chiave, nome, lambda > 0)'); return;
+  }
+  const custom = JSON.parse(localStorage.getItem('ct_iso_custom') || '[]');
+  const idx = custom.findIndex(c => c.key === key);
+  if (idx >= 0) custom[idx] = {key, label, lambda};
+  else custom.push({key, label, lambda});
+  localStorage.setItem('ct_iso_custom', JSON.stringify(custom));
+  ISO_TYPES = caricaIsoTypesCustom();
+  document.getElementById('isoCustomKey').value = '';
+  document.getElementById('isoCustomLabel').value = '';
+  document.getElementById('isoCustomLambda').value = '';
+  renderIsoCustomList();
+  caricaIsoConfig();
+}
+
+function eliminaIsoCustom(key) {
+  let custom = JSON.parse(localStorage.getItem('ct_iso_custom') || '[]');
+  custom = custom.filter(c => c.key !== key);
+  localStorage.setItem('ct_iso_custom', JSON.stringify(custom));
+  ISO_TYPES = caricaIsoTypesCustom();
+  renderIsoCustomList();
+  caricaIsoConfig();
+}
+
+function renderIsoCustomList() {
+  const el = document.getElementById('isoCustomList');
+  if (!el) return;
+  const custom = JSON.parse(localStorage.getItem('ct_iso_custom') || '[]');
+  if (custom.length === 0) { el.innerHTML = '<span style="color:var(--text-dim);font-size:10px;font-family:DM Mono,monospace">Nessun isolante personalizzato.</span>'; return; }
+  el.innerHTML = custom.map(c =>
+    `<span class="saved-profile-btn">${c.label} (λ=${c.lambda})</span>
+     <span class="saved-profile-btn" style="color:var(--red);border-color:var(--red)" onclick="eliminaIsoCustom('${c.key}')">✕</span>`
+  ).join('');
+}
 
 const ISO_CFG_TEMPLATES = {
   '1': [{tipo:'roccia',sp:100,verso:'lungo',spes:false}],
@@ -1558,6 +1740,9 @@ function renderIsoStrati(strati, canDel) {
     const div = document.createElement('div');
     div.className = 'iso-strato';
     div.dataset.spes = s.spes ? '1' : '0';
+    const dispSp   = (s.sp / 10).toFixed(0);
+    const dispLarg = s.largPan || 120;
+    const dispAlt  = s.altPan  || 60;
     div.innerHTML = `
       <div class="iso-strato-title">STRATO ${i+1}${s.spes ? ' — con spessoramenti ↓' : ''}</div>
       ${canDel ? `<button class="iso-strato-del" onclick="isoRimuoviStrato(${i})">✕ rimuovi</button>` : ''}
@@ -1572,14 +1757,25 @@ function renderIsoStrati(strati, canDel) {
           <span class="unit">modificabile — usare valore scheda tecnica</span>
         </div>
         <div class="field">
-          <label>Spessore (mm)</label>
-          <input type="number" data-field="spessore" value="${s.sp}" step="10" min="20" max="400" oninput="calcolaIso()">
+          <label>Spessore</label>
+          <div style="display:flex;gap:5px">
+            <input type="number" data-field="spessore" value="${dispSp}" step="1" min="1" max="40" oninput="calcolaIso()" style="flex:1">
+            <select data-field="unitSp" onchange="calcolaIso()" style="width:52px;flex:none;font-size:11px;padding:9px 3px">
+              <option value="cm" selected>cm</option>
+              <option value="mm">mm</option>
+            </select>
+          </div>
         </div>
         <div class="field">
-          <label>Pannello L × A (cm)</label>
-          <div style="display:flex;gap:5px">
-            <input type="number" data-field="largPan" value="120" step="10" min="30" max="300" placeholder="120" style="width:48%" oninput="calcolaIso()">
-            <input type="number" data-field="altPan"  value="60"  step="10" min="30" max="300" placeholder="60"  style="width:48%" oninput="calcolaIso()">
+          <label>Pannello L × A</label>
+          <div style="display:flex;gap:4px;align-items:center">
+            <input type="number" data-field="largPan" value="${dispLarg}" step="5" min="3" max="300" placeholder="${dispLarg}" style="flex:1;min-width:38px" oninput="calcolaIso()">
+            <span style="color:var(--text-dim);font-size:11px">×</span>
+            <input type="number" data-field="altPan"  value="${dispAlt}"  step="5" min="3" max="300" placeholder="${dispAlt}"  style="flex:1;min-width:38px" oninput="calcolaIso()">
+            <select data-field="unitPan" onchange="calcolaIso()" style="width:50px;flex:none;font-size:11px;padding:9px 2px">
+              <option value="cm" selected>cm</option>
+              <option value="mm">mm</option>
+            </select>
           </div>
           <span class="unit">larghezza × altezza pannello</span>
         </div>
@@ -1623,12 +1819,17 @@ function isoRimuoviStrato(idx) {
 function leggiStratiDOM() {
   const strati = [];
   document.querySelectorAll('#isoStrati .iso-strato').forEach(div => {
+    const unitSp  = div.querySelector('[data-field="unitSp"]')?.value  || 'cm';
+    const unitPan = div.querySelector('[data-field="unitPan"]')?.value || 'cm';
+    const spVal   = parseFloat(div.querySelector('[data-field="spessore"]')?.value) || (unitSp === 'cm' ? 10 : 100);
+    const lpVal   = parseFloat(div.querySelector('[data-field="largPan"]')?.value)  || (unitPan === 'cm' ? 120 : 1200);
+    const apVal   = parseFloat(div.querySelector('[data-field="altPan"]')?.value)   || (unitPan === 'cm' ? 60  : 600);
     strati.push({
       tipo:    div.querySelector('[data-field="tipo"]')?.value || 'roccia',
       lambda:  parseFloat(div.querySelector('[data-field="lambda"]')?.value) || 0.035,
-      sp:      parseFloat(div.querySelector('[data-field="spessore"]')?.value) || 100,
-      largPan: parseFloat(div.querySelector('[data-field="largPan"]')?.value) || 120,
-      altPan:  parseFloat(div.querySelector('[data-field="altPan"]')?.value)  || 60,
+      sp:      unitSp  === 'cm' ? spVal * 10 : spVal,
+      largPan: unitPan === 'mm' ? lpVal / 10 : lpVal,
+      altPan:  unitPan === 'mm' ? apVal / 10 : apVal,
       verso:   div.querySelector('[data-field="verso"]')?.value || 'lungo',
       spes:    div.dataset.spes === '1',
     });
@@ -1643,14 +1844,16 @@ function calcolaIso() {
   const sporto  = document.querySelector('input[name="isoSporto"]:checked')?.value  || 'continuo';
   const gommini = document.querySelector('input[name="isoGommini"]:checked')?.value || 'singoli';
 
+  const lunghSportoMm = getLunghSportoMm();
   // Sporto gronda note
   const sportoNote = document.getElementById('isoSportoNote');
   if (sporto === 'travetti') {
     const ultSp = strati[strati.length-1].sp;
-    sportoNote.innerHTML = `Travetti sporto gronda: altezza = <strong>${ultSp} mm</strong> (= spessore ultimo strato) — ogni 60 cm — fissati con viti normali ai puntoni. Nessun isolante nello sporto.`;
+    sportoNote.innerHTML = `Travetti sporto gronda: altezza = <strong>${ultSp} mm</strong> (= spessore ultimo strato), lunghezza = <strong>${(lunghSportoMm/10).toFixed(0)} cm</strong> — interasse 60 cm — fissati con viti normali ai puntoni. Nessun isolante nello sporto.`;
     sportoNote.style.display = 'block';
   } else {
-    sportoNote.style.display = 'none';
+    sportoNote.innerHTML = `Isolante continuo nello sporto: lunghezza sporto <strong>${(lunghSportoMm/10).toFixed(0)} cm</strong>. Isolante prosegue oltre il muro fino al frontalino.`;
+    sportoNote.style.display = 'block';
   }
 
   // Calcolo U  —  ISO 6946
@@ -1842,11 +2045,13 @@ function popolaDistinta(d) {
 
   if (sporto === 'travetti' && strati.length > 0) {
     const ultSp = strati[strati.length-1].sp;
-    const mlSp  = (d.lunghezza||0) * nFalde;
-    ri.push({desc:`Travetti sporto gronda — ${ultSp} mm altezza`,
-      qty:`${mlSp.toFixed(0)} ml / ${Math.ceil(mlSp/lunghL)} pz`,
+    const lunghSportoMm = getLunghSportoMm();
+    const nPuntoniSp = (d.nPuntoni || Math.ceil((d.lunghezza||0)/0.60) + 1);
+    const mlTravSporto = (lunghSportoMm / 1000) * nPuntoniSp * nFalde;
+    ri.push({desc:`Travetti sporto gronda — ${ultSp} mm altezza × ${(lunghSportoMm/10).toFixed(0)} cm lung.`,
+      qty:`${mlTravSporto.toFixed(1)} ml / ${Math.ceil(mlTravSporto/lunghL)} pz`,
       unit:`pz ${lunghL}m`,
-      note:`Alt. ${ultSp} mm — interasse 60 cm — viti normali ai puntoni`});
+      note:`Alt. ${ultSp} mm — L. ${(lunghSportoMm/10).toFixed(0)} cm — interasse 60 cm — viti normali ai puntoni`});
   }
 
   document.getElementById('distinBodyIso').innerHTML = ri.map(r =>
