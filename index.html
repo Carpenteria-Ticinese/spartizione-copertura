@@ -77,6 +77,9 @@ select option{background:var(--surface2);color:var(--text);}
 .colmo-row{display:flex;align-items:center;gap:10px;margin-top:10px;}
 .toggle-lbl{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;}
 input[type=checkbox]{width:18px;height:18px;accent-color:var(--amber);cursor:pointer;}
+input[type=checkbox]:checked{outline:2px solid var(--amber);outline-offset:1px;}
+input[type=radio]{accent-color:var(--amber);cursor:pointer;}
+input[type=radio]:checked+label,label:has(input:checked){color:var(--amber)!important;font-weight:700;}
 
 /* MANUALE SALVA */
 .btn-save-manual{background:var(--surface2);border:1px solid var(--amber-dim);color:var(--amber);
@@ -259,6 +262,7 @@ input.field-error:focus{border-color:var(--red)!important;}
           <select id="unitLarghezzaSelect" onchange="aggiornaMisure()" style="width:58px;flex:none;font-size:12px;padding:9px 4px">
             <option value="cm" selected>cm</option>
             <option value="m">m</option>
+            <option value="mm">mm</option>
           </select>
         </div>
         <span class="unit" id="unitLarghezza">cm — proiezione orizzontale, da gronda a gronda</span>
@@ -271,6 +275,7 @@ input.field-error:focus{border-color:var(--red)!important;}
           <select id="unitLunghezzaSelect" onchange="aggiornaMisure()" style="width:58px;flex:none;font-size:12px;padding:9px 4px">
             <option value="cm" selected>cm</option>
             <option value="m">m</option>
+            <option value="mm">mm</option>
           </select>
         </div>
         <span class="unit">cm — lunghezza del colmo / del tetto</span>
@@ -836,12 +841,12 @@ function impostaMm(inputId, selectId, valueMm) {
 function getLarghezzaM() {
   const v = parseFloat(document.getElementById('larghezza').value) || 0;
   const u = document.getElementById('unitLarghezzaSelect')?.value || 'cm';
-  return u === 'cm' ? v / 100 : v;
+  return u === 'cm' ? v / 100 : u === 'mm' ? v / 1000 : v;
 }
 function getLunghezzaM() {
   const v = parseFloat(document.getElementById('lunghezza').value) || 0;
   const u = document.getElementById('unitLunghezzaSelect')?.value || 'cm';
-  return u === 'cm' ? v / 100 : v;
+  return u === 'cm' ? v / 100 : u === 'mm' ? v / 1000 : v;
 }
 function getSporgenzaMm() {
   const v = parseFloat(document.getElementById('sporgenza').value) || 55;
