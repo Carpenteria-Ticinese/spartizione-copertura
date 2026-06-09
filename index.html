@@ -11,6 +11,16 @@
   --amber:#d4a017; --amber-dim:#8a6a10; --amber-glow:rgba(212,160,23,0.12);
   --text:#e8e4dc; --text-dim:#8a8680; --red:#c0392b; --green:#27ae60; --blue:#2980b9;
 }
+body.theme-light{--bg:#f4f1eb;--surface:#ffffff;--surface2:#ece8de;--border:#ccc8bc;--amber:#9a6e00;--amber-dim:#7a5800;--amber-glow:rgba(154,110,0,0.12);--text:#1a1916;--text-dim:#5a5650;}
+body.theme-navy{--bg:#0c1a2b;--surface:#162437;--surface2:#1e2f45;--border:#2a3f58;--amber:#d4a017;--amber-dim:#8a6a10;--amber-glow:rgba(212,160,23,0.12);--text:#cde0f4;--text-dim:#6a90b0;}
+body.theme-forest{--bg:#0c180c;--surface:#162416;--surface2:#1e2e1e;--border:#2a402a;--amber:#d4a017;--amber-dim:#8a6a10;--amber-glow:rgba(212,160,23,0.12);--text:#cee8ce;--text-dim:#6a986a;}
+body.theme-terracotta{--bg:#1a110b;--surface:#2a1c13;--surface2:#33231a;--border:#4a3020;--amber:#e0a030;--amber-dim:#a06820;--amber-glow:rgba(224,160,48,0.12);--text:#f0e0cc;--text-dim:#9a7a5a;}
+body.theme-gray{--bg:#161616;--surface:#222222;--surface2:#2c2c2c;--border:#383838;--amber:#d4a017;--amber-dim:#8a6a10;--amber-glow:rgba(212,160,23,0.12);--text:#dedede;--text-dim:#888888;}
+body.theme-white{--bg:#ffffff;--surface:#f8f8f8;--surface2:#eeeeee;--border:#cccccc;--amber:#9a6e00;--amber-dim:#7a5800;--amber-glow:rgba(154,110,0,0.12);--text:#111111;--text-dim:#555555;}
+.theme-picker{display:flex;gap:5px;align-items:center;}
+.tp{width:22px;height:22px;border-radius:50%;border:2px solid rgba(128,128,128,.4);cursor:pointer;padding:0;flex-shrink:0;transition:transform .15s,border-color .15s;}
+.tp:hover{transform:scale(1.25);}
+.tp.active{border-color:var(--amber)!important;transform:scale(1.2);}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
@@ -245,6 +255,15 @@ input.field-error:focus{border-color:var(--red)!important;}
     <div class="logo">CT Carpenteria Ticinese — Bellinzona</div>
     <h1>Spartizione Manto di Copertura</h1>
   </div>
+  <div class="theme-picker" style="margin-left:auto">
+    <button class="tp" data-theme="dark"       onclick="setTheme('dark')"       title="Scuro (default)" style="background:#0f0f0e"></button>
+    <button class="tp" data-theme="light"      onclick="setTheme('light')"      title="Chiaro"          style="background:#f4f1eb;border-color:#999"></button>
+    <button class="tp" data-theme="navy"       onclick="setTheme('navy')"       title="Navy"            style="background:#0c1a2b"></button>
+    <button class="tp" data-theme="forest"     onclick="setTheme('forest')"     title="Foresta"         style="background:#0c180c"></button>
+    <button class="tp" data-theme="terracotta" onclick="setTheme('terracotta')" title="Terracotta"      style="background:#5a2a14"></button>
+    <button class="tp" data-theme="gray"       onclick="setTheme('gray')"       title="Grigio"          style="background:#222222"></button>
+    <button class="tp" data-theme="white"      onclick="setTheme('white')"      title="Bianco"          style="background:#fff;border-color:#aaa"></button>
+  </div>
   <span class="badge">v4.0 — 2026</span>
 </header>
 
@@ -283,8 +302,9 @@ input.field-error:focus{border-color:var(--red)!important;}
       </div>
       <div class="field">
         <label>N° falde</label>
-        <select id="nFalde">
-          <option value="1">1 falda (monofalda)</option>
+        <select id="nFalde" onchange="toggleColmoMuroVisibility()">
+          <option value="1">1 falda (monofalda — colmo a muro)</option>
+          <option value="1pult">1 falda — colmo pult libero (senza muro)</option>
           <option value="2" selected>2 falde (a capanna)</option>
           <option value="4">4 falde (padiglione)</option>
         </select>
@@ -357,7 +377,7 @@ input.field-error:focus{border-color:var(--red)!important;}
     </div>
 
     <!-- COLMO A MURO -->
-    <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+    <div id="colmoMuroSection" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
       <div class="colmo-row">
         <input type="checkbox" id="colmoMuro" onchange="toggleColmoMuro()">
         <label for="colmoMuro" class="toggle-lbl" style="cursor:pointer; font-size:12px; color:var(--text);">
@@ -680,6 +700,11 @@ input.field-error:focus{border-color:var(--red)!important;}
     <div class="detail-card-body" id="larghezzaBox"></div>
   </div>
 
+  <div class="detail-card" id="smazzaturaBox" style="display:none">
+    <div class="detail-card-title">📦 Smazzatura Pacchi — Posizioni di Scarico</div>
+    <div class="detail-card-body" id="smazzaturaBody"></div>
+  </div>
+
   <div class="detail-card">
     <div class="detail-card-title">🪵 Listelli e Controlistelli — Quantità e Sezioni</div>
     <div class="detail-card-body" id="legnoBox"></div>
@@ -899,6 +924,18 @@ function aggiornaMisure() {
 function toggleColmoMuro() {
   document.getElementById('colmoMuroBox').style.display =
     document.getElementById('colmoMuro').checked ? 'block' : 'none';
+}
+function toggleColmoMuroVisibility() {
+  const n = document.getElementById('nFalde').value;
+  const box = document.getElementById('colmoMuroSection');
+  if (!box) return;
+  box.style.display = (n === '1') ? 'block' : 'none';
+  if (n !== '1') {
+    const cb = document.getElementById('colmoMuro');
+    if (cb) cb.checked = false;
+    const muroBox = document.getElementById('colmoMuroBox');
+    if (muroBox) muroBox.style.display = 'none';
+  }
 }
 
 // ============================================================
@@ -1150,6 +1187,19 @@ const PRODOTTI = {
 };
 
 // ============================================================
+// TEMI COLORE
+// ============================================================
+function setTheme(t) {
+  const valid = ['dark','light','navy','forest','terracotta','gray','white'];
+  if (!valid.includes(t)) t = 'dark';
+  document.body.className = 'theme-' + t;
+  localStorage.setItem('ct_tema', t);
+  document.querySelectorAll('.tp').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.theme === t);
+  });
+}
+
+// ============================================================
 // INIT UI
 // ============================================================
 window.onload = function() {
@@ -1160,6 +1210,9 @@ window.onload = function() {
   aggiornaMisure();
   caricaIsoConfig();
   renderIsoCustomList();
+  toggleColmoMuroVisibility();
+  const t = localStorage.getItem('ct_tema') || 'dark';
+  setTheme(t);
 };
 
 function aggiornaTipo() {
@@ -1333,13 +1386,15 @@ function calcola() {
   }
 
   const lunghezza = getLunghezzaM();
-  const nFalde    = parseInt(document.getElementById('nFalde').value);
+  const nFaldeRaw = document.getElementById('nFalde').value;
+  const isPult    = nFaldeRaw === '1pult';
+  const nFalde    = (isPult || nFaldeRaw === '1') ? 1 : parseInt(nFaldeRaw);
   const sporgenza = getSporgenzaMm();
   const scarto    = parseFloat(document.getElementById('scarto').value) || 7;
   const zona      = document.getElementById('zonaneve').value;
   const paese     = document.getElementById('paese').value;
   const tipo      = document.querySelector('input[name=tipo]:checked')?.value || 'tegola';
-  const colmoMuro = document.getElementById('colmoMuro').checked;
+  const colmoMuro = !isPult && document.getElementById('colmoMuro').checked;
   const distMuro  = leggiMm('distMuro', 'unitDistMuroSelect', 80);
   const lunghListello = parseFloat(document.getElementById('lunghListello').value) || 5;
 
@@ -1396,7 +1451,7 @@ function calcola() {
     // lunghFaldaReale - sporgenza_gronda/cos(pend) + offset colmo_a_muro
     // Semplificato: usiamo la lunghezza reale falda meno la sporgenza
     const sporgenzaReale = sporgenza; // mm
-    const reservaColmo = colmoMuro ? (distMuro + 100) : 50; // mm dal colmo
+    const reservaColmo = colmoMuro ? (distMuro + 100) : isPult ? 80 : 50; // mm dal colmo
     const lungDaCoprire = (lunghFaldaReale * 1000) - sporgenzaReale - reservaColmo;
 
     // Trova passo che minimizza il residuo
@@ -1486,7 +1541,9 @@ function calcola() {
       htmlAlt += `<div class="row-data"><span class="lbl">Ultimo listello (colmo a muro)</span><span class="val amber">A min ${distMuro + 100} mm dal filo muro — spazio per scossalina Wandanschluss</span></div>`;
       htmlAlt += `<div class="row-data"><span class="lbl">Distanza tegola → muro</span><span class="val">${distMuro} mm (min 50 mm)</span></div>`;
     } else {
-      htmlAlt += `<div class="row-data"><span class="lbl">Ultimo listello (sotto colmo)</span><span class="val">A min 80–100 mm dal colmo — per colmo ventilato</span></div>`;
+      htmlAlt += isPult
+        ? `<div class="row-data"><span class="lbl">Ultimo listello (colmo pult libero)</span><span class="val">A min 80 mm dal colmo pult — riserva standard ventilazione</span></div>`
+        : `<div class="row-data"><span class="lbl">Ultimo listello (sotto colmo)</span><span class="val">A min 80–100 mm dal colmo — per colmo ventilato</span></div>`;
     }
     if (residuoMm > 30) {
       htmlAlt += `<div class="alert alert-warn">⚠️ Residuo ${residuoMm.toFixed(0)} mm: distribuire il residuo sui primi 2–3 listelli partendo dalla gronda, non sull'ultimo. Oppure aumentare la sporgenza di ${Math.round(residuoMm/2)} mm.</div>`;
@@ -1529,6 +1586,53 @@ function calcola() {
     htmlLarg = `<div class="alert alert-warn">Inserisci la larghezza di copertura (utile per fila) nei dati manuali qui sopra. Valore disponibile nella scheda tecnica del produttore.</div>`;
   }
   document.getElementById('larghezzaBox').innerHTML = htmlLarg;
+
+  // SMAZZATURA PACCHI
+  (function() {
+    const box  = document.getElementById('smazzaturaBox');
+    const body = document.getElementById('smazzaturaBody');
+    if (!box || !body) return;
+    const lunghColmoMm = lunghezza * 1000;
+    if (!pzPacco || !largEff || pzPacco <= 0 || largEff <= 0) {
+      box.style.display = 'block';
+      body.innerHTML = '<div class="alert alert-warn">Inserisci pezzi per pacco e larghezza copertura per calcolare la smazzatura.</div>';
+      return;
+    }
+    const largPaccoMm   = pzPacco * largEff;
+    const nPacchiInteri = Math.floor(lunghColmoMm / largPaccoMm);
+    if (nPacchiInteri < 2) {
+      box.style.display = 'block';
+      body.innerHTML = '<div class="alert alert-warn">Lunghezza colmo insufficiente per calcolare la smazzatura (minimo 2 pacchi per fila).</div>';
+      return;
+    }
+    const residuoSmaz = lunghColmoMm - nPacchiInteri * largPaccoMm;
+    const primoSegno  = residuoSmaz / 2;
+    // N-1 segni per N pacchi
+    const segni = [];
+    for (let i = 0; i < nPacchiInteri - 1; i++) {
+      segni.push(primoSegno + i * largPaccoMm);
+    }
+    let h = '';
+    h += `<div class="row-data"><span class="lbl">Larghezza coperta da 1 pacco</span><span class="val amber">${(largPaccoMm/10).toFixed(1)} cm &nbsp;<small>(${pzPacco} tegole × ${largEff} mm)</small></span></div>`;
+    h += `<div class="row-data"><span class="lbl">N° pacchi interi per fila</span><span class="val amber">${nPacchiInteri}</span></div>`;
+    h += `<div class="row-data"><span class="lbl">Residuo laterale (diviso per lato)</span><span class="val">${residuoSmaz.toFixed(0)} mm → <strong>${(residuoSmaz/2).toFixed(0)} mm</strong> per lato (frontone/mantovana)</span></div>`;
+    h += `<div style="height:8px"></div>`;
+    // Tabella segni
+    h += `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">`;
+    h += `<thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:4px 8px;color:var(--text-dim)">Segno</th><th style="text-align:right;padding:4px 8px;color:var(--text-dim)">Posizione (mm)</th><th style="text-align:right;padding:4px 8px;color:var(--text-dim)">Posizione (cm)</th></tr></thead>`;
+    h += `<tbody>`;
+    segni.forEach(function(pos, idx) {
+      h += `<tr style="border-bottom:1px solid var(--border)">`;
+      h += `<td style="padding:4px 8px;color:var(--amber);font-weight:700">Segno ${idx+1}</td>`;
+      h += `<td style="padding:4px 8px;text-align:right">${pos.toFixed(0)} mm</td>`;
+      h += `<td style="padding:4px 8px;text-align:right;font-weight:600">${(pos/10).toFixed(1)} cm</td>`;
+      h += `</tr>`;
+    });
+    h += `</tbody></table></div>`;
+    h += `<div class="nota" style="margin-top:10px">📦 <strong>Come smazzare:</strong> posiziona 1 pacco a DX e 1 a SX di ogni segno. Procedi da destra verso sinistra. Il primo e l'ultimo pacco coprono il residuo di <strong>${(residuoSmaz/2).toFixed(0)} mm</strong> per lato verso il frontone/mantovana.</div>`;
+    body.innerHTML = h;
+    box.style.display = 'block';
+  })();
 
   // LEGNO
   let htmlLegno = '';
@@ -1630,7 +1734,9 @@ function calcola() {
   if (pendGradi > 55) {
     notes.push(`⚠️ Pendenza > 55°: fissaggio meccanico di OGNI tegola obbligatorio (vite o zanca per ogni pezzo). Verificare tabella fissaggi del produttore.`);
   }
-  notes.push(`🔧 Colmo: preferire colmo ventilato in alluminio (evitare malta). Colmo ventilato: min 50 mm apertura per ventilazione (SIA 180).`);
+  notes.push(isPult
+    ? `🔧 Colmo pult libero: terminazione superiore della falda libera (non a muro). Colmo ventilato in alluminio — riserva 80 mm per il dettaglio di colmo.`
+    : `🔧 Colmo: preferire colmo ventilato in alluminio (evitare malta). Colmo ventilato: min 50 mm apertura per ventilazione (SIA 180).`);
   if (colmoMuro) {
     notes.push(`🧱 Colmo a muro: scossalina (Wandanschluss) in rame o zinco, murata min 100 mm nella parete, risvolto sulla falda min 150 mm. Non murare rigidamente: la lamiera deve poter lavorare per dilatazione termica.`);
   }
